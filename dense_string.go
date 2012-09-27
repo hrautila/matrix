@@ -83,9 +83,21 @@ func (A *FloatMatrix) ConvertToString() string {
 	return s
 }
 
+func FloatParse(s string) (A *FloatMatrix, err error) {
+	if strings.Index(s, ";") != -1 {
+		// Matlab style [a b c; d e f] recognised from semicolon
+		return floatParseMatLab(s)
+	} else if strings.Index(s, "{") != -1 {
+		// special format {rows cols [data]}
+		return floatParseSpe(s)
+	} 
+	// finaly try Python string [row]\n[row]
+	return floatParsePy(s)
+}
+
 // Parse a matlab-style row-major matrix representation eg [a b c; d e f]
 // and return a DenseFLoatMatrix.
-func FloatParse(s string) (A *FloatMatrix, err error) {
+func floatParseMatLab(s string) (A *FloatMatrix, err error) {
 	var arrays [][]float64
 	start := strings.Index(s, "[")
 	end := strings.LastIndex(s, "]")
@@ -123,7 +135,7 @@ func FloatParse(s string) (A *FloatMatrix, err error) {
 //   [1,0 2.0 3.0]
 //   [1.1 2.1 3.1]
 // Returns a new FloatMatrix.
-func FloatParsePy(s string) (A *FloatMatrix, err error) {
+func floatParsePy(s string) (A *FloatMatrix, err error) {
 	var arrays [][]float64
 	// rowString is matrix row starting with '[' character.
 	// Remove newlines and split on ']'
@@ -169,7 +181,7 @@ rows:
 }
 
 // Parse string in format '{nrows ncols [element list]}'
-func FloatParseSpe(s string) (A *FloatMatrix, err error) {
+func floatParseSpe(s string) (A *FloatMatrix, err error) {
 	err = nil
 	A = nil
 

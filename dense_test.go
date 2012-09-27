@@ -7,15 +7,8 @@ import (
 )
 
 
-func PrintArray(m Matrix) {
-	ar := m.FloatArray()
-	fmt.Printf("matrix: %d, %d [%d elements]\n",
-		m.Rows(), m.Cols(), m.NumElements())
-	fmt.Printf("data: %v\n", ar)
-}
-
 func TestFParse(t *testing.T) {
-	fmt.Printf("Test matrix string parsing.\n")
+	fmt.Printf("Test matrix string parsing (MatLab style).\n")
 	s := `[1.0 2.0 3.0; 4.0 5.0 6.0]`
 	A, err := FloatParse(s)
 	if err != nil {
@@ -25,21 +18,21 @@ func TestFParse(t *testing.T) {
 }
 
 func TestFParse2(t *testing.T) {
-	fmt.Printf("Test matrix string parsing.\n")
+	fmt.Printf("Test matrix string parsing (Python style).\n")
 	s2 := "[-7.44e-01  1.11e-01  1.29e+00  2.62e+00 -1.82e+00]" +
 		"[ 4.59e-01  7.06e-01  3.16e-01 -1.06e-01  7.80e-01]" +
 		"[-2.95e-02 -2.22e-01 -2.07e-01 -9.11e-01 -3.92e-01]" +
 		"[-7.75e-01  1.03e-01 -1.22e+00 -5.74e-01 -3.32e-01]" +
 		"[-1.80e+00  1.24e+00 -2.61e+00 -9.31e-01 -6.38e-01]"
 
-	A, err := FloatParsePy(s2)
+	A, err := FloatParse(s2)
 	if err != nil {
 		t.Fatal(err)
 	}
 	fmt.Printf("Py-A :\n%v\n", A)
 	// this produces error (column count mismatch)
 	s := "[1.0  2.0  3.0 4.0]\n[1.1  2.1 3.1]"
-	A, err = FloatParsePy(s)
+	A, err = FloatParse(s)
 	if err != nil {
 		fmt.Printf("error: %v\n", err)
 	}
@@ -99,6 +92,7 @@ func TestMath2(t *testing.T) {
 	m.Add(5.0, iset...)
 	fmt.Printf("%v\n", m)
 }
+
 func TestFuncs(t *testing.T) {
 	fmt.Printf("Test matrix element wise math.\n")
 	A := FloatZeros(2, 3)
@@ -119,7 +113,7 @@ func TestIndexing(t *testing.T) {
 	fmt.Printf(" every 2nd: %v\n", A.GetIndexes(Indexes(0, A.NumElements(), 2)))
 }
 
-func TestScalars(t *testing.T) {
+func testScalars(t *testing.T) {
 	f := FScalar(2.0)
 	fmt.Printf(" f = %v\n", f)
 	fmt.Printf("-f = %v\n", -f)
@@ -136,7 +130,7 @@ func TestArrayCreate(t *testing.T) {
 
 func TestParseSpe(t *testing.T) {
 	s := "{2 3 [3.666666666666667, 3.142857142857143, 4.857142857142857, 4.000000000000000, 5.000000000000000, 6.000000000000000]}"
-	m, err := FloatParseSpe(s)
+	m, err := FloatParse(s)
 	if err != nil {
 		fmt.Printf("parse error: %v\n", err)
 	} else {
@@ -144,7 +138,7 @@ func TestParseSpe(t *testing.T) {
 	}
 
 	s2 := "{0 1 []}"
-	m, err = FloatParseSpe(s2)
+	m, err = FloatParse(s2)
 	if err != nil {
 		fmt.Printf("parse error: %v\n", err)
 	} else {
