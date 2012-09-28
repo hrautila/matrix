@@ -22,16 +22,24 @@ type FloatMatrix struct {
 	elements []float64
 }
 
-// Create a column-major matrix from a flat array of elements. Assumes
-// values are in column-major order.
-func FloatNew(rows, cols int, elements []float64) *FloatMatrix {
+// Create a column-major matrix from a flat array of elements.
+// Assumes values are in column-major order.
+func FloatNew(rows, cols int, elements []float64, order ...DataOrder) *FloatMatrix {
+	if len(order) > 0 && order[0] != ColumnOrder {
+		// data in row order
+		table := make([][]float64, 0)
+		for i := 0; i < rows; i++ {
+			table = append(table, elements[i*cols:(i+1)*cols])
+		}
+		return FloatMatrixFromTable(table, RowOrder)
+	}
 	e := make([]float64, rows*cols)
 	copy(e, elements)
 	return makeFloatMatrix(rows, cols, e)
 }
 
 // Create a column major vector from an array of elements. Shorthand for
-// call MakeMatrix(len(elems), 1, elems).
+// call FloatNew(len(elems), 1, elems).
 func FloatVector(elements []float64) *FloatMatrix {
 	rows := len(elements)
 	e := make([]float64, rows)

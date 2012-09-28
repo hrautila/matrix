@@ -17,12 +17,6 @@ type Matrix interface {
 	Cols() int
 	// The number of elements in this matrix.
 	NumElements() int
-	// Returns underlying float64 array for BLAS/LAPACK routines. Returns nil
-	// if matrix is complex128 valued.
-	//FloatArray() []float64
-	// Returns underlying complex128 array for BLAS/LAPACK routines. Returns nil
-	// if matrix is float64 valued matrix.
-	//ComplexArray() []complex128
 	// Matrix in string format.
 	String() string
 	// Make a copy  and return as Matrix interface type.

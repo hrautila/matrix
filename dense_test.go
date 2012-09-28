@@ -84,12 +84,8 @@ func TestFMath(t *testing.T) {
 
 func TestMath2(t *testing.T) {
 	m := FloatOnes(8, 1)
-	iset := make([]int, 0)
-	iset = append(iset, []int{0,1,2}...)
-	m.Add(1.0, iset...)
-	iset = make([]int, 0)
-	iset = append(iset, []int{5,6,7}...)
-	m.Add(5.0, iset...)
+	m.Add(1.0, 0, 1, 2)
+	m.Add(5.0, 5, 6, 7)
 	fmt.Printf("%v\n", m)
 }
 
@@ -167,6 +163,14 @@ func TestFromTable(t *testing.T) {
 	fmt.Printf("b=\n%v\n", b.ToString("%.2f"))
 	fmt.Printf("b == a:   %v\n", b.Equal(a))
 	fmt.Printf("b == a.T: %v\n", b.Equal(a.Transpose()))
+}
+
+func TestFromTable2(t *testing.T) {
+	data := []float64{1, 2, 3, 4, 5, 6}
+	a := FloatNew(2, 3, data)
+	b := FloatNew(2, 3, data, RowOrder)
+	fmt.Printf("a=\n%v\n", a)
+	fmt.Printf("b=\n%v\n", b)
 }
 
 // Local Variables:
