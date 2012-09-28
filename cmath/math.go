@@ -8,7 +8,7 @@
 package cmath
 
 import (
-	"github.com/hrautila/go.opt/matrix"
+	"github.com/hrautila/matrix"
 	"math/cmplx"
 )
 
@@ -118,7 +118,7 @@ func Plus(matrices ...*matrix.ComplexMatrix) *matrix.ComplexMatrix {
 }
 
 // Compute element-wise difference C = A - B. Returns a new matrix.
-func Minus(A, B *matrix.ComplexMatrix) *matrix.ComplexMatrix {
+func Minus(matrices ...*matrix.ComplexMatrix) *matrix.ComplexMatrix {
 	if len(matrices) <= 1 {
 		if len(matrices) == 1 {
 			return matrices[0]
@@ -197,24 +197,20 @@ func ApplyConstValues(A *matrix.ComplexMatrix, values []complex128, fn func(comp
 }
 
 
-// Return sum of elements
-func Sum(A *matrix.ComplexMatrix, indexes... int) complex128 {
-	return A.Sum(indexes...)
-}
 
 // Compute Abs(A), Returns a new float valued matrix.
 func Abs(A *matrix.ComplexMatrix) *matrix.FloatMatrix {
 	C := matrix.FloatZeros(A.Rows(), A.Cols())
 	Cr := C.FloatArray()
-	Br := B.ComplexArray()
-	for k, v := range Br {
+	Ar := A.ComplexArray()
+	for k, v := range Ar {
 		Cr[k] = cmplx.Abs(v)
 	}
 	return C
 }
 
 // Compute element-wise C = Conj(A). Returns a new matrix.
-func Conj(A matrix.ComplexMatrix, indexes ...int) *matrix.ComplexMatrix {
+func Conj(A *matrix.ComplexMatrix, indexes ...int) *matrix.ComplexMatrix {
 	return Apply(A, cmplx.Conj, indexes...)
 }
 
@@ -272,7 +268,7 @@ func Complex(Real, Imag *matrix.FloatMatrix) *matrix.ComplexMatrix {
 	Ir := Imag.FloatArray()
 	Cr := C.ComplexArray()
 	for i, _ := range Rr {
-		Cr[i] = complex128(Rr[i], Ii[i])
+		Cr[i] = complex(Rr[i], Ir[i])
 	}
 	return C
 }

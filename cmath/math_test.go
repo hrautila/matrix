@@ -1,8 +1,8 @@
 
-package cmtrx
+package cmath
 
 import (
-	"github.com/hrautila/go.opt/matrix"
+	"github.com/hrautila/matrix"
 	"testing"
 	"fmt"
 )

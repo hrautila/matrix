@@ -83,6 +83,25 @@ func (A *ComplexMatrix) AddIndexes(indexes []int, values []complex128) *ComplexM
 }
 
 
+// Compute in-place inverse A[i,j] = 1.0/A[i,j]. If indexes is empty calculates for
+// all elements
+func (A *ComplexMatrix) Inv(indexes... int) *ComplexMatrix {
+	if len(indexes) == 0 {
+		for k, _ := range A.elements {
+			A.elements[k] = 1.0/A.elements[k]
+		}
+	} else  {
+		N := A.NumElements()
+		for _, k := range indexes {
+			if k < 0 {
+				k = N + k
+			}
+			A.elements[k] = 1.0/A.elements[k]
+		}
+	}
+	return A
+}
+
 // Compute in-place negation -A[i,j]
 func (A *ComplexMatrix) Neg() *ComplexMatrix {
 	for k, v := range A.elements {
