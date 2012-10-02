@@ -1,4 +1,3 @@
-
 // Copyright (c) Harri Rautila, 2012
 
 // This file is part of go.opt/matrix package. It is free software, distributed
@@ -9,24 +8,17 @@ package matrix
 
 // Test for equality. Return true if for all i,j: all A[i,j] = B[i,j]
 func (A *ComplexMatrix) Equal(B *ComplexMatrix) bool {
-	if A.Rows() != B.Rows() || A.Cols() != B.Cols() {
-		return false
-	}
-	for k, _ := range A.elements {
-		if A.elements[k] != B.elements[k] {
-			return false
-		}
-	}
-	return true
+    if A.Rows() != B.Rows() || A.Cols() != B.Cols() {
+        return false
+    }
+    for k, _ := range A.elements {
+        if A.elements[k] != B.elements[k] {
+            return false
+        }
+    }
+    return true
 }
-
-
-
 
 // Local Variables:
 // tab-width: 4
 // End:
-
-
-
-	

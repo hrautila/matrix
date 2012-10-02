@@ -1,4 +1,3 @@
-
 // Copyright (c) Harri Rautila, 2012
 
 // This file is part of go.opt/matrix package. It is free software, distributed
@@ -8,49 +7,49 @@
 package matrix
 
 import (
-	"testing"
-	"fmt"
+    "fmt"
+    "testing"
 )
 
 func asMatrix(A Matrix) {
-	fmt.Printf("Test linalg.Matrix methods.\n")
-	M := A.MakeCopy()
-	fmt.Printf("M size: %d rows, %d cols\n", M.Rows(), M.Cols())
-	fmt.Printf("M elems: %d\n", M.NumElements())
-	fmt.Printf("M:\n%v\n", M)
+    fmt.Printf("Test linalg.Matrix methods.\n")
+    M := A.MakeCopy()
+    fmt.Printf("M size: %d rows, %d cols\n", M.Rows(), M.Cols())
+    fmt.Printf("M elems: %d\n", M.NumElements())
+    fmt.Printf("M:\n%v\n", M)
 }
 
 func TestA(t *testing.T) {
-	fmt.Printf("Test complex matrix printing.\n")
-	A := ComplexZeros(2,2)
-	fmt.Printf("A:\n%v\n", A)
+    fmt.Printf("Test complex matrix printing.\n")
+    A := ComplexZeros(2, 2)
+    fmt.Printf("A:\n%v\n", A)
 }
 
 func TestCParse(t *testing.T) {
-	fmt.Printf("Test matrix string parsing.\n")
-	s := `[(1.0+0i) (+2-1i) (3.0+0i); ( 4.2-.5i) (-5 -.1i) (6+0i)]`
-	A, err := ComplexParse(s)
-	if err != nil {
-		t.Fatal(err)
-	}
-	fmt.Printf("A :\n%v\n", A)
-	fmt.Printf("A size: %d rows, %d cols\n", A.Rows(), A.Cols())
-	fmt.Printf("A elems: %d\n", A.NumElements())
-	D := A.Transpose()
-	fmt.Printf("D = A.transpose:\n%v\n", D)
-	r, c := D.Size()
-	fmt.Printf("D size: %d rows, %d cols\n", r, c)
-	asMatrix(A)
+    fmt.Printf("Test matrix string parsing.\n")
+    s := `[(1.0+0i) (+2-1i) (3.0+0i); ( 4.2-.5i) (-5 -.1i) (6+0i)]`
+    A, err := ComplexParse(s)
+    if err != nil {
+        t.Fatal(err)
+    }
+    fmt.Printf("A :\n%v\n", A)
+    fmt.Printf("A size: %d rows, %d cols\n", A.Rows(), A.Cols())
+    fmt.Printf("A elems: %d\n", A.NumElements())
+    D := A.Transpose()
+    fmt.Printf("D = A.transpose:\n%v\n", D)
+    r, c := D.Size()
+    fmt.Printf("D size: %d rows, %d cols\n", r, c)
+    asMatrix(A)
 }
 
 func TestRand(t *testing.T) {
-	fmt.Printf("Test matrix creation.\n")
-	A := ComplexUniform(3, 2)
-	fmt.Printf("A :\n%v\n", A)
-	B := ComplexUniformSymmetric(2)
-	fmt.Printf("B :\n%v\n", B)
+    fmt.Printf("Test matrix creation.\n")
+    A := ComplexUniform(3, 2)
+    fmt.Printf("A :\n%v\n", A)
+    B := ComplexUniformSymmetric(2)
+    fmt.Printf("B :\n%v\n", B)
 }
-	
+
 /*
 func TestCopy(t *testing.T) {
 	fmt.Printf("Test creating and setting elements.\n")
