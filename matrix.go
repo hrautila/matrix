@@ -194,7 +194,7 @@ func RowIndexes(m Matrix, row int) []int {
     }
     iset := make([]int, N)
     for i := 0; i < N; i++ {
-        k := (row + i) * m.Cols()
+        k := i * N + row
         iset[i] = k
     }
     return iset
