@@ -7,6 +7,7 @@
 package matrix
 
 import (
+	"github.com/hrautila/matrix/calgo"
     "math"
 )
 
@@ -117,18 +118,7 @@ func Times(A, B *FloatMatrix) *FloatMatrix {
     rows := A.Rows()
     cols := B.Cols()
     C := FloatZeros(rows, cols)
-    Cr := C.FloatArray()
-    arow := make([]float64, A.Cols())
-    bcol := make([]float64, B.Rows())
-    for i := 0; i < rows; i++ {
-        arow = A.GetRowArray(i, arow)
-        for j := 0; j < cols; j++ {
-            bcol = B.GetColumnArray(j, bcol)
-            for k, _ := range arow {
-                Cr[j*rows+i] += arow[k] * bcol[k]
-            }
-        }
-    }
+	calgo.Mult(0, cols, rows, B.Rows(), C.FloatArray(), A.FloatArray(), B.FloatArray())
     return C
 }
 
