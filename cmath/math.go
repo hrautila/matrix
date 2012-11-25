@@ -140,22 +140,7 @@ func Times(A, B *matrix.ComplexMatrix) *matrix.ComplexMatrix {
     if A.Cols() != B.Rows() {
         return nil
     }
-    rows := A.Rows()
-    cols := B.Cols()
-    C := matrix.ComplexZeros(rows, cols)
-    Cr := C.ComplexArray()
-    arow := make([]complex128, A.Cols())
-    bcol := make([]complex128, B.Rows())
-    for i := 0; i < rows; i++ {
-        arow = A.GetRowArray(i, arow)
-        for j := 0; j < cols; j++ {
-            bcol = B.GetColumnArray(j, bcol)
-            for k, _ := range arow {
-                Cr[j*rows+i] += arow[k] * bcol[k]
-            }
-        }
-    }
-    return C
+    return A.Times(B)
 }
 
 // Make a copy C of A and apply function fn element wise to C.
