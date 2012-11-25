@@ -1,22 +1,24 @@
 package matrix
 
 import (
-    "fmt"
+    //"fmt"
     "testing"
 )
 
+var X, A, B *FloatMatrix
+
 func TestFParse(t *testing.T) {
-    fmt.Printf("Test matrix string parsing (MatLab style).\n")
+    t.Logf("Test matrix string parsing (MatLab style).\n")
     s := `[1.0 2.0 3.0; 4.0 5.0 6.0]`
     A, err := FloatParse(s)
     if err != nil {
         t.Fatal(err)
     }
-    fmt.Printf("A :\n%v\n", A)
+    t.Logf("A :\n%v\n", A)
 }
 
 func TestFParse2(t *testing.T) {
-    fmt.Printf("Test matrix string parsing (Python style).\n")
+    t.Logf("Test matrix string parsing (Python style).\n")
     s2 := "[-7.44e-01  1.11e-01  1.29e+00  2.62e+00 -1.82e+00]" +
         "[ 4.59e-01  7.06e-01  3.16e-01 -1.06e-01  7.80e-01]" +
         "[-2.95e-02 -2.22e-01 -2.07e-01 -9.11e-01 -3.92e-01]" +
@@ -27,115 +29,158 @@ func TestFParse2(t *testing.T) {
     if err != nil {
         t.Fatal(err)
     }
-    fmt.Printf("Py-A :\n%v\n", A)
+    t.Logf("Py-A :\n%v\n", A)
     // this produces error (column count mismatch)
     s := "[1.0  2.0  3.0 4.0]\n[1.1  2.1 3.1]"
     A, err = FloatParse(s)
     if err != nil {
-        fmt.Printf("error: %v\n", err)
+        t.Logf("error: %v\n", err)
     }
 }
 
 func TestCRandom(t *testing.T) {
     B := FloatUniform(3, 2)
     A := FloatUniformSymmetric(3)
-    fmt.Printf("B:\n%v\n", B)
-    fmt.Printf("A symmetric:\n%v\n", A)
+    t.Logf("B:\n%v\n", B)
+    t.Logf("A symmetric:\n%v\n", A)
 }
 
 func TestCCopy(t *testing.T) {
-    fmt.Printf("Test creating and setting elements.\n")
+    t.Logf("Test creating and setting elements.\n")
     A := FloatNew(2, 3, []float64{1, 4, 2, 5, 3, 6})
-    fmt.Printf("A:\n%v\n", A)
+    t.Logf("A:\n%v\n", A)
     C := A.Copy()
-    fmt.Printf("C:\n%v\n", C)
+    t.Logf("C:\n%v\n", C)
     C.SetAt(0, 1, 10.0*C.GetAt(0, 1))
     B := FloatNew(3, 2, []float64{1, 2, 3, 4, 5, 6})
-    fmt.Printf("B:\n%v\n", B)
+    t.Logf("B:\n%v\n", B)
 }
 
 func TestFBool(t *testing.T) {
-    fmt.Printf("Test matrix boolean operators.\n")
+    t.Logf("Test matrix boolean operators.\n")
     A := FloatNew(3, 2, []float64{1, 4, 2, 5, 3, 6})
-    fmt.Printf("A:\n%v\n", A)
+    t.Logf("A:\n%v\n", A)
     B := A.Copy()
     //B := MakeMatrix(3, 2, []float64{1,2,3,4,5,6})
-    fmt.Printf("B:\n%v\n", B)
-    fmt.Printf("A == B: %v\n", A.Equal(B))
-    fmt.Printf("A <  B: %v\n", A.Less(B))
-    fmt.Printf("A <= B: %v\n", A.LessOrEqual(B))
-    fmt.Printf("A >  B: %v\n", A.Greater(B))
-    fmt.Printf("A >= B: %v\n", A.GreaterOrEqual(B))
+    t.Logf("B:\n%v\n", B)
+    t.Logf("A == B: %v\n", A.Equal(B))
+    t.Logf("A <  B: %v\n", A.Less(B))
+    t.Logf("A <= B: %v\n", A.LessOrEqual(B))
+    t.Logf("A >  B: %v\n", A.Greater(B))
+    t.Logf("A >= B: %v\n", A.GreaterOrEqual(B))
 }
 
 func TestFMath(t *testing.T) {
-    fmt.Printf("Test matrix basic math.\n")
+    t.Logf("Test matrix basic math.\n")
     A := FloatZeros(2, 2)
-    fmt.Printf("A\n%v\n", A)
+    t.Logf("A\n%v\n", A)
     A.Add(1.0)
-    fmt.Printf("A += 1.0\n%v\n", A)
+    t.Logf("A += 1.0\n%v\n", A)
     A.Scale(9.0)
-    fmt.Printf("A *= 9.0\n%v\n", A)
+    t.Logf("A *= 9.0\n%v\n", A)
     A.Add(-1.0)
-    fmt.Printf("A -= 1.0\n%v\n", A)
+    t.Logf("A -= 1.0\n%v\n", A)
 }
 
 func TestMath2(t *testing.T) {
     m := FloatOnes(8, 1)
     m.Add(1.0, 0, 1, 2)
     m.Add(5.0, 5, 6, 7)
-    fmt.Printf("%v\n", m)
+    t.Logf("%v\n", m)
 }
 
+func TestTimes(t *testing.T) {
+	A := FloatWithValue(4, 4, 1.0)
+	x := FloatWithValue(4, 1, 2.0)
+	t.Logf("A*x=\n%v\n", A.Times(x))
+	B := FloatWithValue(4, 4, 1.0)
+	t.Logf("A*B=\n%v\n", A.Times(B))
+}
+
+func TestMakeBigVector(t *testing.T) {
+	A = FloatDiagonal(20000, 1.0)
+	X = FloatWithValue(20000, 1, 2.0)
+}
+
+func TestBigVector(t *testing.T) {
+	t.Logf("A*x=%d elements\n", A.Times(X).NumElements())
+}
+
+func TestMakeBigData(t *testing.T) {
+	A = FloatDiagonal(800, 1.0)
+	B = FloatWithValue(800, 800, 2.0)
+}
+
+func TestTimesBig(t *testing.T) {
+	C := A.Times(B)
+	t.Logf("A*B = %d elements\n", C.NumElements())
+}
+
+func TestMakeBigData2(t *testing.T) {
+	A = FloatWithValue(6000, 10, 1.0)
+	B = FloatWithValue(10, 6000, 1.0)
+}
+
+func TestTimesBig2(t *testing.T) {
+	C := A.Times(B)
+	t.Logf("A*B = %d elements\n", C.NumElements())
+}
+
+func TestTimesBig3(t *testing.T) {
+	C := B.Times(A)
+	t.Logf("B*A = %d elements\n", C.NumElements())
+}
+
+
 func TestFuncs(t *testing.T) {
-    fmt.Printf("Test matrix element wise math.\n")
+    t.Logf("Test matrix element wise math.\n")
     A := FloatZeros(2, 3)
     AddTwo := func(n float64) float64 {
         return n + 2.0
     }
     C := Apply(A, AddTwo)
-    fmt.Printf("C = AddTwo(A):\n%v\n", C)
+    t.Logf("C = AddTwo(A):\n%v\n", C)
 }
 
 func TestIndexing(t *testing.T) {
     A := FloatVector([]float64{0, 1, 2, 3, 4, 5})
-    fmt.Printf(" 0: %v\n", A.GetIndex(0))
-    fmt.Printf("-1: %v\n", A.GetIndex(-1))
+    t.Logf(" 0: %v\n", A.GetIndex(0))
+    t.Logf("-1: %v\n", A.GetIndex(-1))
     // this should fail: index out of bounds
-    //fmt.Printf(" 6: %v\n", A.GetIndex(6))
-    fmt.Printf(" every 2nd: %v\n", A.GetIndexes(Indexes(0, A.NumElements(), 2)))
+    //t.Logf(" 6: %v\n", A.GetIndex(6))
+    t.Logf(" every 2nd: %v\n", A.GetIndexes(Indexes(0, A.NumElements(), 2)))
 }
 
 func testScalars(t *testing.T) {
     f := FScalar(2.0)
-    fmt.Printf(" f = %v\n", f)
-    fmt.Printf("-f = %v\n", -f)
+    t.Logf(" f = %v\n", f)
+    t.Logf("-f = %v\n", -f)
     z := FScalar(f * f)
-    fmt.Printf(" z = %v\n", z)
+    t.Logf(" z = %v\n", z)
 
 }
 
 func TestArrayCreate(t *testing.T) {
     m := FloatVector([]float64{0, 1, 2, 3, 4, 5, 6, 7, 8, 9})
     b := FloatVector(m.FloatArray()[2:5])
-    fmt.Printf("len(m) = %d, len(b) = %d, b=\n%v\n", m.NumElements(), b.NumElements(), b)
+    t.Logf("len(m) = %d, len(b) = %d, b=\n%v\n", m.NumElements(), b.NumElements(), b)
 }
 
 func TestParseSpe(t *testing.T) {
     s := "{2 3 [3.666666666666667, 3.142857142857143, 4.857142857142857, 4.000000000000000, 5.000000000000000, 6.000000000000000]}"
     m, err := FloatParse(s)
     if err != nil {
-        fmt.Printf("parse error: %v\n", err)
+        t.Logf("parse error: %v\n", err)
     } else {
-        fmt.Printf("rows: %d, cols: %d, data:\n%v\n", m.Rows(), m.Cols(), m)
+        t.Logf("rows: %d, cols: %d, data:\n%v\n", m.Rows(), m.Cols(), m)
     }
 
     s2 := "{0 1 []}"
     m, err = FloatParse(s2)
     if err != nil {
-        fmt.Printf("parse error: %v\n", err)
+        t.Logf("parse error: %v\n", err)
     } else {
-        fmt.Printf("rows: %d, cols: %d, data:\n%v\n", m.Rows(), m.Cols(), m)
+        t.Logf("rows: %d, cols: %d, data:\n%v\n", m.Rows(), m.Cols(), m)
     }
 }
 
@@ -144,8 +189,8 @@ func TestStacked(t *testing.T) {
     b := FloatOnes(3, 3)
     m0, _ := FloatMatrixStacked(StackDown, a, b)
     m1, _ := FloatMatrixStacked(StackRight, a, b)
-    fmt.Printf("stack down=\n%v\n", m0.ToString("%.2f"))
-    fmt.Printf("stack right=\n%v\n", m1.ToString("%.2f"))
+    t.Logf("stack down=\n%v\n", m0.ToString("%.2f"))
+    t.Logf("stack right=\n%v\n", m1.ToString("%.2f"))
 }
 
 func TestFromTable(t *testing.T) {
@@ -156,18 +201,18 @@ func TestFromTable(t *testing.T) {
 
     a := FloatMatrixFromTable(data, RowOrder)
     b := FloatMatrixFromTable(data, ColumnOrder)
-    fmt.Printf("a=\n%v\n", a.ToString("%.2f"))
-    fmt.Printf("b=\n%v\n", b.ToString("%.2f"))
-    fmt.Printf("b == a:   %v\n", b.Equal(a))
-    fmt.Printf("b == a.T: %v\n", b.Equal(a.Transpose()))
+    t.Logf("a=\n%v\n", a.ToString("%.2f"))
+    t.Logf("b=\n%v\n", b.ToString("%.2f"))
+    t.Logf("b == a:   %v\n", b.Equal(a))
+    t.Logf("b == a.T: %v\n", b.Equal(a.Transpose()))
 }
 
 func TestFromTable2(t *testing.T) {
     data := []float64{1, 2, 3, 4, 5, 6}
     a := FloatNew(2, 3, data)
     b := FloatNew(2, 3, data, RowOrder)
-    fmt.Printf("a=\n%v\n", a)
-    fmt.Printf("b=\n%v\n", b)
+    t.Logf("a=\n%v\n", a)
+    t.Logf("b=\n%v\n", b)
 }
 
 // Local Variables:
