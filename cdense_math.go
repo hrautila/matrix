@@ -155,6 +155,57 @@ func (A *ComplexMatrix) Minus(B *ComplexMatrix) *ComplexMatrix {
     return A
 }
 
+// Compute matrix product C = A * B where A is m*p and B is p*n.
+// Returns a new m*n matrix. 
+func (A *ComplexMatrix) Times(B *ComplexMatrix) *ComplexMatrix {
+    if A.Cols() != B.Rows() {
+        return nil
+    }
+    rows := A.Rows()
+    cols := B.Cols()
+	acols := A.Cols()
+    C := ComplexZeros(rows, cols)
+	Ar := A.elements
+	Br := B.elements
+
+	// Basic idea:
+	// Loop through each matrix always in memory order ie. down each column.
+
+	// cc: start of column j in matrix C (=j*C.Rows)
+	// cr: index to C row i in column j  (=j*C.Rows+i)
+	// br: index to B, row i in column k (=k*B.Rows+i)
+	// ar: index to A, row
+	cc := 0
+	for j := 0; j < cols; j++ {
+		br := 0
+		ar := 0
+		for k := 0; k < acols; k++ {
+			// move C index to first row in current column
+			cr := cc
+			// beta is value of B[k,j]
+			beta := Br[br]
+			// zero in B[k,j] does not increment value in C[:,j]
+			if beta != 0.0 {
+				// C[:,j] += A[:,k]*B[k,j]
+				for i := 0; i < rows; i++ {
+					C.elements[cr] += Ar[ar]*beta
+					// move to next row in memory order
+					cr += 1
+					ar += 1
+				}
+			} else {
+				// we skipped all rows in this column, move to start of next column
+				ar += rows
+			}
+			// move to next row in B, here ar points to start of next column in A
+			br += 1
+        }
+		// forward to start of next column in C
+		cc += rows
+    }
+    return C
+}
+
 // Compute A = fn(A) by applying function fn element wise to A.
 // If indexes array is non-empty function is applied to elements of A
 // indexed by the contents of indexes.
