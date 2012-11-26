@@ -51,7 +51,7 @@ import "unsafe"
 // S is start column and N is end column in C, M is rows in A and P is rows in B
 // and columns in A. For full matrix product call with S=0, N=C.Cols.
 func Mult(S, N, M, P int, C, A, B []float64) {
-	C.mat_mult(C.int(S), C.int(M), C.int(N), C.int(P),
+	C.mat_mult(C.int(S), C.int(N), C.int(M), C.int(P),
 		(*C.double)(unsafe.Pointer(&C[0])),
 		(*C.double)(unsafe.Pointer(&A[0])),
 		(*C.double)(unsafe.Pointer(&B[0])))
