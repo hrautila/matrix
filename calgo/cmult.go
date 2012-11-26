@@ -11,8 +11,8 @@ void mat_mult(int S, int N, int M, int P, double *C, double *A, double *B) {
    int i, j, k, cc, cr, ar, br;
    double beta;
    cc = S*M;
+   br = S*P;
    for (j = S; j < N; j++) {
-     br = 0;
      ar = 0;
      for (k = 0; k < P; k++) {
        // move C index to first row in current column 
@@ -48,8 +48,8 @@ import "unsafe"
 
 
 // Calculate matrix-matrix product C = A*B for column major ordered matrices.
-// S is start column and N is end column in C, M is rows in A and P is rows in B.
-// For full matrix product call with S=0, N=C.Cols.
+// S is start column and N is end column in C, M is rows in A and P is rows in B
+// and columns in A. For full matrix product call with S=0, N=C.Cols.
 func Mult(S, N, M, P int, C, A, B []float64) {
 	C.mat_mult(C.int(S), C.int(M), C.int(N), C.int(P),
 		(*C.double)(unsafe.Pointer(&C[0])),

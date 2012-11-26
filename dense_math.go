@@ -188,8 +188,8 @@ func (A *FloatMatrix) Times(B *FloatMatrix) *FloatMatrix {
 	// br: index to B, row i in column k (=k*B.Rows+i)
 	// ar: index to A, row
 	cc := 0
+	br := 0
 	for j := 0; j < cols; j++ {
-		br := 0
 		ar := 0
 		for k := 0; k < acols; k++ {
 			// move C index to first row in current column
