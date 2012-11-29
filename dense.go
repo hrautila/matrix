@@ -381,8 +381,14 @@ func (A *FloatMatrix) SetValue(val float64) {
 }
 
 // Set element values in column-major ordering. Negative indexes are relative 
-// to the last element of the matrix.
+// to the last element of the matrix. If len(indexes) is zero sets all elements.
 func (A *FloatMatrix) Set(val float64, indexes ...int) {
+	if len(indexes) == 0 {
+		for k, _ := range A.elements {
+			A.elements[k] = val
+		}
+		return
+	}
     N := A.NumElements()
     for _, i := range indexes {
         if i < 0 {
