@@ -6,6 +6,8 @@
 
 package matrix
 
+import "math"
+
 // Test for equality. Return true if for all i,j: all A[i,j] = B[i,j]
 func (A *FloatMatrix) Equal(B *FloatMatrix) bool {
     if !A.SizeMatch(B.Size()) {
@@ -69,6 +71,38 @@ func (A *FloatMatrix) GreaterOrEqual(B *FloatMatrix) bool {
     }
     for k, _ := range A.elements {
         if A.elements[k] < B.elements[k] {
+            return false
+        }
+    }
+    return true
+}
+
+// Default relative tolenrance
+const RTOL = 1.0000000000000001e-05
+
+// Default absolute tolerance
+const ATOL = 1e-8
+
+// Return true if A is element-wise equal to with a tolerance. The tolerance
+// values are positive, typically very small numbers. If tolerances parameter
+// is not given default values are used. If one tolerance value is given, it is
+// used as absolute tolerance. If two values are given, first is used as absolute
+// tolerance and second as relative tolerance.
+func (A *FloatMatrix) AllClose(B *FloatMatrix, tolerances ...float64) bool {
+    if !A.SizeMatch(B.Size()) {
+        return false
+    }
+	rtol := RTOL
+	atol := ATOL
+	if len(tolerances) == 1 {
+		atol = tolerances[0]
+	} else if len(tolerances) > 1 {
+		atol = tolerances[0]
+		rtol = tolerances[1]
+	}
+    for k, _ := range A.elements {
+		df := math.Abs(A.elements[k]-B.elements[k])
+        if df > atol + rtol*math.Abs(B.elements[k]) {
             return false
         }
     }
