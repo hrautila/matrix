@@ -115,10 +115,11 @@ func Times(A, B *FloatMatrix) *FloatMatrix {
     if A.Cols() != B.Rows() {
         return nil
     }
-    rows := A.Rows()
-    cols := B.Cols()
-    C := FloatZeros(rows, cols)
-	calgo.Mult(0, cols, rows, B.Rows(), C.FloatArray(), A.FloatArray(), B.FloatArray())
+    M := A.Rows()
+    N := B.Cols()
+	P := B.Rows()
+    C := FloatZeros(M, N)
+	calgo.Mult(C.FloatArray(), A.FloatArray(), B.FloatArray(), 1.0, M, N, P)
     return C
 }
 
