@@ -97,37 +97,30 @@ func TestTimes(t *testing.T) {
 	t.Logf("A*B=\n%v\n", A.Times(B))
 }
 
-func TestMakeBigVector(t *testing.T) {
-	A = FloatDiagonal(20000, 1.0)
-	X = FloatWithValue(20000, 1, 2.0)
-}
-
 func TestBigVector(t *testing.T) {
-	t.Logf("A*x=%d elements\n", A.Times(X).NumElements())
-}
-
-func TestMakeBigData(t *testing.T) {
-	A = FloatDiagonal(800, 1.0)
-	B = FloatWithValue(800, 800, 2.0)
+	A := FloatDiagonal(20000, 1.0)
+	X := FloatWithValue(20000, 1, 2.0)
+	t.Logf("A*x=%d elements\n", Times(A, X).NumElements())
 }
 
 func TestTimesBig(t *testing.T) {
-	C := A.Times(B)
+	A := FloatDiagonal(800, 1.0)
+	B := FloatWithValue(800, 800, 2.0)
+	C := Times(A, B)
 	t.Logf("A*B = %d elements\n", C.NumElements())
 }
 
-func TestMakeBigData2(t *testing.T) {
-	A = FloatWithValue(6000, 10, 1.0)
-	B = FloatWithValue(10, 6000, 1.0)
-}
-
 func TestTimesBig2(t *testing.T) {
-	C := A.Times(B)
+	A := FloatWithValue(6000, 10, 1.0)
+	B := FloatWithValue(10, 6000, 1.0)
+	C := Times(A, B)
 	t.Logf("A*B = %d elements\n", C.NumElements())
 }
 
 func TestTimesBig3(t *testing.T) {
-	C := B.Times(A)
+	A := FloatWithValue(6000, 10, 1.0)
+	B := FloatWithValue(10, 6000, 1.0)
+	C := Times(B, A)
 	t.Logf("B*A = %d elements\n", C.NumElements())
 }
 
