@@ -9,7 +9,7 @@ package calgo
 
 /*
 
-extern void mult_vp_notrans(double *C, const double *A, const double *B,
+extern void matmult_vp_notrans(double *C, const double *A, const double *B,
 			    const double alpha,
 			    int M, int N, int P, int S, int L, int R, int E,
 			    int vlen);
@@ -21,7 +21,7 @@ import "unsafe"
 // Calculate C +=alpha*A*B where C is M*N, A is M*P, B is P*N and alpha is scalar.
 // Arrays C, A, B are column major order matrix data arrays.
 func Mult(C, A, B []float64, alpha float64, M, N, P int) {
-    C.mult_vp_notrans(
+    C.matmult_vp_notrans(
         (*C.double)(unsafe.Pointer(&C[0])),
         (*C.double)(unsafe.Pointer(&A[0])),
         (*C.double)(unsafe.Pointer(&B[0])), C.double(alpha),
@@ -33,7 +33,7 @@ func Mult(C, A, B []float64, alpha float64, M, N, P int) {
 // C += alpha*A*B for block defined by rows [R:E] and columns [S:L].
 // C is M*N, A is M*P, B is P*N and 0 <= L < S < N and 0 <= R < E < M
 func BlkMult(C, A, B []float64, alpha float64, M, N, P, S, L, R, E int) {
-    C.mult_vp_notrans(
+    C.matmult_vp_notrans(
         (*C.double)(unsafe.Pointer(&C[0])),
         (*C.double)(unsafe.Pointer(&A[0])),
         (*C.double)(unsafe.Pointer(&B[0])), C.double(alpha),
@@ -45,7 +45,7 @@ func BlkMult(C, A, B []float64, alpha float64, M, N, P, S, L, R, E int) {
 // C is M*N, A is M*P, B is P*N and 0 <= L < S < N and 0 <= R < E < M
 // Panels in A and B are accessed in vlen blocks and accumulated to C.
 func BlkMultVp(C, A, B []float64, alpha float64, M, N, P, S, L, R, E, vlen int) {
-    C.mult_vp_notrans(
+    C.matmult_vp_notrans(
         (*C.double)(unsafe.Pointer(&C[0])),
         (*C.double)(unsafe.Pointer(&A[0])),
         (*C.double)(unsafe.Pointer(&B[0])),

@@ -11,9 +11,9 @@
 // Matrix data is assumed to be in column major order. 
 // Matrix C block defined by rows R:E, columns S:L,
 // matrix B column panel by S, L; matrix  A rows panel by R:E.
-void mult_block_notrans(double *C, const double *A, const double *B,
-                        const double alpha,
-			int M, int N, int P, int S, int L, int R, int E)
+void matmult_block_notrans(double *C, const double *A, const double *B,
+                           const double alpha,
+                           int M, int N, int P, int S, int L, int R, int E)
 {
   // M is rows in C, A
   // P is cols in A, rows in B
@@ -66,8 +66,8 @@ void mult_block_notrans(double *C, const double *A, const double *B,
 //      0 <= R < E < M
 //      0 < vlen < P
 //
-void mult_vp_notrans(double *C, const double *A, const double *B, double alpha,
-                     int M, int N, int P, int S, int L, int R, int E, int vlen)
+void matmult_vp_notrans(double *C, const double *A, const double *B, double alpha,
+                        int M, int N, int P, int S, int L, int R, int E, int vlen)
 {
   int j, k, vpS, vpL;
   const double *Bc, *Br, *Ac, *AvpS;
