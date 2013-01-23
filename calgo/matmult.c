@@ -121,6 +121,81 @@ void matmult_vp_notrans(double *C, const double *A, const double *B, double alph
 }
 
 
+// Same as above with inner most loop partially unrolled. Speed up ~8%.
+void matmult_vpur_notrans(double *C, const double *A, const double *B, double alpha,
+                       int M, int N, int P, int S, int L, int R, int E, int vlen)
+{
+  int j, k, vpS, vpL;
+  int SLcnt, REcnt, REmod;
+  const double *Bc, *Br, *Ac, *AvpS;
+  double *Cc;
+  register const double *Ar;
+  register int i;
+  register double *Cr;
+  register double coeff, f0, f1, f2, f3;
+
+  SLcnt = L - S;
+  REcnt = E - R;
+  REmod = REcnt % 4;
+  REcnt -= REmod;
+  if (vlen == 0) {
+    vlen = 32;
+  }
+  vpS = 0;
+  vpL = vlen < P ? vlen : P;
+  while (vpS < P) {
+    // block start C[R, S]
+    Cc = &C[S*M+R];
+    // column viewport start in panel B[:,S]
+    Bc = &B[S*P + vpS];
+    AvpS = &A[vpS*M + R];
+
+    for (j = S; j < L; j++) {
+      Ac = AvpS;       // row viewport start A[R,:]
+      Br = Bc;
+      for (k = vpS; k < vpL; k++) {
+        Cr = Cc;        // move C index to first row in current column 
+        Ar = Ac;
+        coeff = *Br;
+        if (coeff != 0.0) {
+          coeff *= alpha;
+          for (i = 0; i < REmod; i++) {
+            f0 = Ar[0] * coeff;
+            Cr[0] += f0;
+            Cr++;
+            Ar++;
+          }
+          for (i = 0; i < REcnt; i += 4) {
+            f0 = Ar[0] * coeff;
+            Cr[0] += f0;
+            f1 = Ar[1] * coeff;
+            Cr[1] += f1;
+            f2 = Ar[2] * coeff;
+            Cr[2] += f2;
+            f3 = Ar[3] * coeff;
+            Cr[3] += f3;
+            Cr += 4;
+            Ar += 4;
+          }
+        } 
+        // move to next row in B, next column in A
+        Br++;
+        Ac += M;
+      }
+      // forward to start of next column in C, B
+      Cc += M;
+      Bc += P;
+    }
+    
+    vpS = vpL;
+    vpL += vlen;
+    if (vpL > P) {
+      vpL = P;
+    }
+  }
+  return;
+}
+
 
 
 // Local Variables:
