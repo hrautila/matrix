@@ -123,7 +123,8 @@ void matmult_vp_notrans(double *C, const double *A, const double *B, double alph
 
 // Same as above with inner most loop partially unrolled. Speed up ~8%.
 void matmult_vpur_notrans(double *C, const double *A, const double *B, double alpha,
-                       int M, int N, int P, int S, int L, int R, int E, int vlen)
+                          int ldC, int ldA, int ldB,
+                          int M, int N, int P, int S, int L, int R, int E, int vlen)
 {
   int j, k, vpS, vpL;
   int SLcnt, REcnt, REmod;
@@ -145,10 +146,10 @@ void matmult_vpur_notrans(double *C, const double *A, const double *B, double al
   vpL = vlen < P ? vlen : P;
   while (vpS < P) {
     // block start C[R, S]
-    Cc = &C[S*M+R];
+    Cc = &C[S*ldC+R];
     // column viewport start in panel B[:,S]
-    Bc = &B[S*P + vpS];
-    AvpS = &A[vpS*M + R];
+    Bc = &B[S*ldB + vpS];
+    AvpS = &A[vpS*ldA + R];
 
     for (j = S; j < L; j++) {
       Ac = AvpS;       // row viewport start A[R,:]
@@ -180,11 +181,11 @@ void matmult_vpur_notrans(double *C, const double *A, const double *B, double al
         } 
         // move to next row in B, next column in A
         Br++;
-        Ac += M;
+        Ac += ldA;
       }
       // forward to start of next column in C, B
-      Cc += M;
-      Bc += P;
+      Cc += ldC;
+      Bc += ldB;
     }
     
     vpS = vpL;

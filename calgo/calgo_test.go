@@ -28,12 +28,12 @@ func TestMakeData(t *testing.T) {
 
 func TestMultAB(t *testing.T) {
     // this should run quickly
-    Mult(C, A, B, 1.0, NROWS, NROWS, NROWS)
+    Mult(C, A, B, 1.0, NROWS, NROWS, NROWS, NROWS, NROWS, NROWS)
 }
 
 func TestMultBA(t *testing.T) {
     // this take more time
-    Mult(C, B, A, 1.0, NROWS, NROWS, NROWS)
+    Mult(C, B, A, 1.0, NROWS, NROWS, NROWS, NROWS, NROWS, NROWS)
 }
 
 // Local Variables:
