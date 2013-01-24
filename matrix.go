@@ -253,6 +253,18 @@ func Indexes(specs ...int) []int {
     return iset
 }
 
+// translate submatrix direct index to underlying matrix index.
+// (relative to start of submatrix.)
+func realIndex(index, nrows, nstep int) int {
+	if nrows == nstep {
+		return index
+	}
+	col := index / nrows
+	row := index - col * nrows
+
+	return col*nstep + row
+}
+
 // Local Variables:
 // tab-width: 4
 // End:

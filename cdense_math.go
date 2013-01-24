@@ -10,53 +10,58 @@ import "math/cmplx"
 
 // Compute in-place product A[i,j] *= alpha
 func (A *ComplexMatrix) Scale(alpha complex128, indexes ...int) *ComplexMatrix {
+	nrows := A.Rows()
+	step := A.LeadingIndex()
     if len(indexes) == 0 {
-        for k, _ := range A.elements {
-            A.elements[k] *= alpha
-        }
+		for k := 0; k < A.NumElements(); k++ {
+			rk := realIndex(k, nrows, step)
+			A.elements[rk] *= alpha
+		}
     } else {
         N := A.NumElements()
-        for _, k := range indexes {
-            if k < 0 {
-                k = N + k
-            }
-            A.elements[k] *= alpha
-        }
+		for k := 0; k < A.NumElements(); k++ {
+			k = (k + N) % N
+			rk := realIndex(k, nrows, step)
+			A.elements[rk] *= alpha
+		}
     }
     return A
 }
 
 // Compute in-place A[indexes[i]] *= values[i]. Indexes are in column-major order.
 func (A *ComplexMatrix) ScaleIndexes(indexes []int, values []complex128) *ComplexMatrix {
+	nrows := A.Rows()
+	step := A.LeadingIndex()
     if len(indexes) == 0 {
         return A
     }
     N := A.NumElements()
-    for i, k := range indexes {
-        if i >= len(values) {
-            return A
-        }
-        if k < 0 {
-            k = N + k
-        }
-        A.elements[k] *= values[i]
-    }
+	for i, k := range indexes {
+		if i >= len(values) {
+			return A
+		}
+		k = (k + N) % N
+		rk := realIndex(k, nrows, step)
+		A.elements[rk] *= values[i]
+	}
     return A
 }
 
 // Compute in-place sum A[i,j] += alpha
 func (A *ComplexMatrix) Add(alpha complex128, indexes ...int) *ComplexMatrix {
+	nrows := A.Rows()
+	step := A.LeadingIndex()
+    N := A.NumElements()
     if len(indexes) == 0 {
-        for k, _ := range A.elements {
-            A.elements[k] += alpha
+        for k := 0; k < N; k++ {
+			rk := realIndex(k, nrows, step)
+            A.elements[rk] += alpha
         }
     } else {
-        N := A.NumElements()
         for _, k := range indexes {
-            if k < 0 {
-                k = N + k
-            }
-            A.elements[k] += alpha
+			k = (k + N) % N
+			rk := realIndex(k, nrows, step)
+            A.elements[rk] += alpha
         }
     }
     return A
@@ -67,15 +72,16 @@ func (A *ComplexMatrix) AddIndexes(indexes []int, values []complex128) *ComplexM
     if len(indexes) == 0 {
         return A
     }
+	nrows := A.Rows()
+	step := A.LeadingIndex()
     N := A.NumElements()
     for i, k := range indexes {
         if i >= len(values) {
             return A
         }
-        if k < 0 {
-            k = N + k
-        }
-        A.elements[k] += values[i]
+		k = (k + N) % N
+		rk := realIndex(k, nrows, step)
+        A.elements[rk] += values[i]
     }
     return A
 }
@@ -83,17 +89,19 @@ func (A *ComplexMatrix) AddIndexes(indexes []int, values []complex128) *ComplexM
 // Compute in-place inverse A[i,j] = 1.0/A[i,j]. If indexes is empty calculates for
 // all elements
 func (A *ComplexMatrix) Inv(indexes ...int) *ComplexMatrix {
+	nrows := A.Rows()
+	step := A.LeadingIndex()
+    N := A.NumElements()
     if len(indexes) == 0 {
-        for k, _ := range A.elements {
-            A.elements[k] = 1.0 / A.elements[k]
+        for k := 0; k < N; k++ {
+			rk := realIndex(k, nrows, step)
+            A.elements[rk] = 1.0 / A.elements[rk]
         }
     } else {
-        N := A.NumElements()
         for _, k := range indexes {
-            if k < 0 {
-                k = N + k
-            }
-            A.elements[k] = 1.0 / A.elements[k]
+			k = (k + N) % N
+			rk := realIndex(k, nrows, step)
+            A.elements[rk] = 1.0 / A.elements[rk]
         }
     }
     return A
@@ -113,8 +121,12 @@ func (A *ComplexMatrix) Div(B *ComplexMatrix) *ComplexMatrix {
     if !A.SizeMatch(B.Size()) {
         return A
     }
-    for k, v := range B.elements {
-        A.elements[k] /= v
+	nrows := A.Rows()
+	step := A.LeadingIndex()
+    N := A.NumElements()
+    for k := 0; k < N; k++ {
+		rk := realIndex(k, nrows, step)
+        A.elements[rk] /= B.elements[rk]
     }
     return A
 }
@@ -125,8 +137,12 @@ func (A *ComplexMatrix) Mul(B *ComplexMatrix) *ComplexMatrix {
     if !A.SizeMatch(B.Size()) {
         return A
     }
-    for k, v := range B.elements {
-        A.elements[k] *= v
+	nrows := A.Rows()
+	step := A.LeadingIndex()
+    N := A.NumElements()
+    for k := 0; k < N; k++ {
+		rk := realIndex(k, nrows, step)
+        A.elements[rk] *= B.elements[rk]
     }
     return A
 }
@@ -137,8 +153,12 @@ func (A *ComplexMatrix) Plus(B *ComplexMatrix) *ComplexMatrix {
     if !A.SizeMatch(B.Size()) {
         return A
     }
-    for k, v := range B.elements {
-        A.elements[k] += v
+	nrows := A.Rows()
+	step := A.LeadingIndex()
+    N := A.NumElements()
+    for k := 0; k < N; k++ {
+		rk := realIndex(k, nrows, step)
+        A.elements[rk] += B.elements[rk]
     }
     return A
 }
@@ -149,8 +169,12 @@ func (A *ComplexMatrix) Minus(B *ComplexMatrix) *ComplexMatrix {
     if !A.SizeMatch(B.Size()) {
         return A
     }
-    for k, v := range B.elements {
-        A.elements[k] -= v
+	nrows := A.Rows()
+	step := A.LeadingIndex()
+    N := A.NumElements()
+    for k := 0; k < N; k++ {
+		rk := realIndex(k, nrows, step)
+        A.elements[rk] -= B.elements[rk]
     }
     return A
 }
@@ -210,17 +234,19 @@ func (A *ComplexMatrix) Times(B *ComplexMatrix) *ComplexMatrix {
 // If indexes array is non-empty function is applied to elements of A
 // indexed by the contents of indexes.
 func (A *ComplexMatrix) Apply(fn func(complex128) complex128, indexes ...int) *ComplexMatrix {
+	nrows := A.Rows()
+	step := A.LeadingIndex()
+    N := A.NumElements()
     if len(indexes) == 0 {
-        for k, v := range A.elements {
-            A.elements[k] = fn(v)
+		for k := 0; k < N; k++ {
+			rk := realIndex(k, nrows, step)
+            A.elements[rk] = fn(A.elements[rk])
         }
     } else {
-        N := A.NumElements()
-        for k, v := range A.elements {
-            if k < 0 {
-                k = k + N
-            }
-            A.elements[k] = fn(v)
+        for _, k := range indexes {
+			k = (k + N) % N
+			rk := realIndex(k, nrows, step)
+            A.elements[rk] = fn(A.elements[rk])
         }
     }
     return A
@@ -230,17 +256,19 @@ func (A *ComplexMatrix) Apply(fn func(complex128) complex128, indexes ...int) *C
 // If indexes array is non-empty function is applied to elements of A
 // indexed by the contents of indexes.
 func (A *ComplexMatrix) ApplyConst(x complex128, fn func(complex128, complex128) complex128, indexes ...int) *ComplexMatrix {
+	nrows := A.Rows()
+	step := A.LeadingIndex()
+    N := A.NumElements()
     if len(indexes) == 0 {
-        for k, v := range A.elements {
-            A.elements[k] = fn(v, x)
+		for k := 0; k < N; k++ {
+			rk := realIndex(k, nrows, step)
+            A.elements[rk] = fn(A.elements[rk], x)
         }
     } else {
-        N := A.NumElements()
-        for k, v := range A.elements {
-            if k < 0 {
-                k = k + N
-            }
-            A.elements[k] = fn(v, x)
+        for _, k := range indexes {
+			k = (k + N) % N
+			rk := realIndex(k, nrows, step)
+            A.elements[rk] = fn(A.elements[rk], x)
         }
     }
     return A
@@ -248,16 +276,17 @@ func (A *ComplexMatrix) ApplyConst(x complex128, fn func(complex128, complex128)
 
 // Compute A = fn(A, x) by applying function fn element wise to A.
 //  For all i in indexes: A[indexes[i]] = fn(A[indexes[i]], values[i])
-func (A *ComplexMatrix) ApplyConstValues(values []complex128, fn func(complex128, complex128) complex128, indexes []int) *ComplexMatrix {
+func (A *ComplexMatrix) ApplyConstValues(values []complex128, fn func(complex128, complex128) complex128, indexes... int) *ComplexMatrix {
+	nrows := A.Rows()
+	step := A.LeadingIndex()
     N := A.NumElements()
     for i, k := range indexes {
         if i > len(values) {
             return A
         }
-        if k < 0 {
-            k += N
-        }
-        A.elements[k] = fn(A.elements[k], values[i])
+		k = (k + N) % N
+		rk := realIndex(k, nrows, step)
+        A.elements[rk] = fn(A.elements[rk], values[i])
     }
     return A
 }

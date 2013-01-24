@@ -13,11 +13,14 @@ func (A *FloatMatrix) Equal(B *FloatMatrix) bool {
     if !A.SizeMatch(B.Size()) {
         return false
     }
-    for k, _ := range A.elements {
-        if A.elements[k] != B.elements[k] {
-            return false
-        }
-    }
+	nrows := A.Rows()
+	step := A.LeadingIndex()
+	for k := 0; k < A.NumElements(); k++ {
+		rk := realIndex(k, nrows, step)
+		if A.elements[rk] != B.elements[rk] {
+			return false
+		}
+	}
     return true
 }
 
@@ -26,8 +29,11 @@ func (A *FloatMatrix) Less(B *FloatMatrix) bool {
     if !A.SizeMatch(B.Size()) {
         return false
     }
-    for k, _ := range A.elements {
-        if A.elements[k] >= B.elements[k] {
+	nrows := A.Rows()
+	step := A.LeadingIndex()
+	for k := 0; k < A.NumElements(); k++ {
+		rk := realIndex(k, nrows, step)
+        if A.elements[rk] >= B.elements[rk] {
             return false
         }
     }
@@ -41,8 +47,11 @@ func (A *FloatMatrix) LessOrEqual(B *FloatMatrix) bool {
     if !A.SizeMatch(B.Size()) {
         return false
     }
-    for k, _ := range A.elements {
-        if A.elements[k] > B.elements[k] {
+	nrows := A.Rows()
+	step := A.LeadingIndex()
+	for k := 0; k < A.NumElements(); k++ {
+		rk := realIndex(k, nrows, step)
+        if A.elements[rk] > B.elements[rk] {
             return false
         }
     }
@@ -55,8 +64,11 @@ func (A *FloatMatrix) Greater(B *FloatMatrix) bool {
     if !A.SizeMatch(B.Size()) {
         return false
     }
-    for k, _ := range A.elements {
-        if A.elements[k] <= B.elements[k] {
+	nrows := A.Rows()
+	step := A.LeadingIndex()
+	for k := 0; k < A.NumElements(); k++ {
+		rk := realIndex(k, nrows, step)
+        if A.elements[rk] <= B.elements[rk] {
             return false
         }
     }
@@ -69,15 +81,18 @@ func (A *FloatMatrix) GreaterOrEqual(B *FloatMatrix) bool {
     if !A.SizeMatch(B.Size()) {
         return false
     }
-    for k, _ := range A.elements {
-        if A.elements[k] < B.elements[k] {
+	nrows := A.Rows()
+	step := A.LeadingIndex()
+	for k := 0; k < A.NumElements(); k++ {
+		rk := realIndex(k, nrows, step)
+        if A.elements[rk] < B.elements[rk] {
             return false
         }
     }
     return true
 }
 
-// Default relative tolenrance
+// Default relative tolenrance, these are spyed from Python NumPy
 const RTOL = 1.0000000000000001e-05
 
 // Default absolute tolerance
@@ -100,9 +115,12 @@ func (A *FloatMatrix) AllClose(B *FloatMatrix, tolerances ...float64) bool {
 		atol = tolerances[0]
 		rtol = tolerances[1]
 	}
-    for k, _ := range A.elements {
-		df := math.Abs(A.elements[k]-B.elements[k])
-        if df > atol + rtol*math.Abs(B.elements[k]) {
+	nrows := A.Rows()
+	step := A.LeadingIndex()
+	for k := 0; k < A.NumElements(); k++ {
+		rk := realIndex(k, nrows, step)
+		df := math.Abs(A.elements[rk]-B.elements[rk])
+        if df > atol + rtol*math.Abs(B.elements[rk]) {
             return false
         }
     }

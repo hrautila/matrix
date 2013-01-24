@@ -1,4 +1,4 @@
-// Copyright (c) Harri Rautila, 2012
+// Copyright (c) Harri Rautila, 2012,2013
 
 // This file is part of go.opt/matrix package. It is free software, distributed
 // under the terms of GNU Lesser General Public License Version 3, or any later
@@ -11,54 +11,59 @@ import "math"
 // Compute in-place A *= alpha for all elements in the matrix if list of indexes
 // is empty. Otherwise compute A[i] *= alpha for indexes in column-major order.
 func (A *FloatMatrix) Scale(alpha float64, indexes ...int) *FloatMatrix {
+	nrows := A.Rows()
+	step := A.LeadingIndex()
     if len(indexes) == 0 {
-        for k, _ := range A.elements {
-            A.elements[k] *= alpha
-        }
+		for k := 0; k < A.NumElements(); k++ {
+			rk := realIndex(k, nrows, step)
+			A.elements[rk] *= alpha
+		}
     } else {
         N := A.NumElements()
-        for _, k := range indexes {
-            if k < 0 {
-                k = N + k
-            }
-            A.elements[k] *= alpha
-        }
+		for k := 0; k < A.NumElements(); k++ {
+			k = (k + N) % N
+			rk := realIndex(k, nrows, step)
+			A.elements[rk] *= alpha
+		}
     }
     return A
 }
 
 // Compute in-place A[indexes[i]] *= values[i]. Indexes are in column-major order.
 func (A *FloatMatrix) ScaleIndexes(indexes []int, values []float64) *FloatMatrix {
+	nrows := A.Rows()
+	step := A.LeadingIndex()
     if len(indexes) == 0 {
         return A
     }
     N := A.NumElements()
-    for i, k := range indexes {
-        if i >= len(values) {
-            return A
-        }
-        if k < 0 {
-            k = N + k
-        }
-        A.elements[k] *= values[i]
-    }
+	for i, k := range indexes {
+		if i >= len(values) {
+			return A
+		}
+		k = (k + N) % N
+		rk := realIndex(k, nrows, step)
+		A.elements[rk] *= values[i]
+	}
     return A
 }
 
 // Compute in-place remainder A[i,j] %= alpha
 func (A *FloatMatrix) Mod(alpha float64, indexes ...int) *FloatMatrix {
+	nrows := A.Rows()
+	step := A.LeadingIndex()
+    N := A.NumElements()
     if len(indexes) == 0 {
-        for k, _ := range A.elements {
-            A.elements[k] = math.Mod(A.elements[k], alpha)
-        }
+        for k := 0; k < N; k++ {
+			rk := realIndex(k, nrows, step)
+			A.elements[rk] = math.Mod(A.elements[rk], alpha)
+		}
     } else {
-        N := A.NumElements()
-        for _, k := range indexes {
-            if k < 0 {
-                k = N + k
-            }
-            A.elements[k] = math.Mod(A.elements[k], alpha)
-        }
+		for _, k := range indexes {
+			k = (k + N) % N
+			rk := realIndex(k, nrows, step)
+			A.elements[rk] = math.Mod(A.elements[rk], alpha)
+		}
     }
     return A
 }
@@ -66,17 +71,19 @@ func (A *FloatMatrix) Mod(alpha float64, indexes ...int) *FloatMatrix {
 // Compute in-place inverse A[i,j] = 1.0/A[i,j]. If indexes is empty calculates for
 // all elements
 func (A *FloatMatrix) Inv(indexes ...int) *FloatMatrix {
+	nrows := A.Rows()
+	step := A.LeadingIndex()
+    N := A.NumElements()
     if len(indexes) == 0 {
-        for k, _ := range A.elements {
-            A.elements[k] = 1.0 / A.elements[k]
+        for k := 0; k < N; k++ {
+			rk := realIndex(k, nrows, step)
+            A.elements[rk] = 1.0 / A.elements[rk]
         }
     } else {
-        N := A.NumElements()
         for _, k := range indexes {
-            if k < 0 {
-                k = N + k
-            }
-            A.elements[k] = 1.0 / A.elements[k]
+			k = (k + N) % N
+			rk := realIndex(k, nrows, step)
+            A.elements[rk] = 1.0 / A.elements[rk]
         }
     }
     return A
@@ -85,17 +92,19 @@ func (A *FloatMatrix) Inv(indexes ...int) *FloatMatrix {
 // Compute in-place A += alpha for all elements in the matrix if list of indexes
 // is empty. Otherwise compute A[i] += alpha for indexes in column-major order.
 func (A *FloatMatrix) Add(alpha float64, indexes ...int) *FloatMatrix {
+	nrows := A.Rows()
+	step := A.LeadingIndex()
+    N := A.NumElements()
     if len(indexes) == 0 {
-        for k, _ := range A.elements {
-            A.elements[k] += alpha
+        for k := 0; k < N; k++ {
+			rk := realIndex(k, nrows, step)
+            A.elements[rk] += alpha
         }
     } else {
-        N := A.NumElements()
         for _, k := range indexes {
-            if k < 0 {
-                k = N + k
-            }
-            A.elements[k] += alpha
+			k = (k + N) % N
+			rk := realIndex(k, nrows, step)
+            A.elements[rk] += alpha
         }
     }
     return A
@@ -106,15 +115,16 @@ func (A *FloatMatrix) AddIndexes(indexes []int, values []float64) *FloatMatrix {
     if len(indexes) == 0 {
         return A
     }
+	nrows := A.Rows()
+	step := A.LeadingIndex()
     N := A.NumElements()
     for i, k := range indexes {
         if i >= len(values) {
             return A
         }
-        if k < 0 {
-            k = N + k
-        }
-        A.elements[k] += values[i]
+		k = (k + N) % N
+		rk := realIndex(k, nrows, step)
+        A.elements[rk] += values[i]
     }
     return A
 }
@@ -125,8 +135,12 @@ func (A *FloatMatrix) Div(B *FloatMatrix) *FloatMatrix {
     if !A.SizeMatch(B.Size()) {
         return A
     }
-    for k, v := range B.elements {
-        A.elements[k] /= v
+	nrows := A.Rows()
+	step := A.LeadingIndex()
+    N := A.NumElements()
+    for k := 0; k < N; k++ {
+		rk := realIndex(k, nrows, step)
+        A.elements[rk] /= B.elements[rk]
     }
     return A
 }
@@ -137,8 +151,12 @@ func (A *FloatMatrix) Mul(B *FloatMatrix) *FloatMatrix {
     if !A.SizeMatch(B.Size()) {
         return A
     }
-    for k, v := range B.elements {
-        A.elements[k] *= v
+	nrows := A.Rows()
+	step := A.LeadingIndex()
+    N := A.NumElements()
+    for k := 0; k < N; k++ {
+		rk := realIndex(k, nrows, step)
+        A.elements[rk] *= B.elements[rk]
     }
     return A
 }
@@ -149,20 +167,29 @@ func (A *FloatMatrix) Plus(B *FloatMatrix) *FloatMatrix {
     if !A.SizeMatch(B.Size()) {
         return A
     }
-    for k, v := range B.elements {
-        A.elements[k] += v
+	nrows := A.Rows()
+	step := A.LeadingIndex()
+    N := A.NumElements()
+    for k := 0; k < N; k++ {
+		rk := realIndex(k, nrows, step)
+        A.elements[rk] += B.elements[rk]
     }
     return A
 }
 
 // Compute element-wise difference A -= B. Return A. If A and B sizes
-// do not match A is returned unaltered.
+// do not match A is returned unaltered. Not guaranteed to work for overlapping
+// submatrices.
 func (A *FloatMatrix) Minus(B *FloatMatrix) *FloatMatrix {
     if !A.SizeMatch(B.Size()) {
         return A
     }
-    for k, v := range B.elements {
-        A.elements[k] -= v
+	nrows := A.Rows()
+	step := A.LeadingIndex()
+    N := A.NumElements()
+    for k := 0; k < N; k++ {
+		rk := realIndex(k, nrows, step)
+        A.elements[rk] -= B.elements[rk]
     }
     return A
 }
@@ -178,17 +205,19 @@ func (A *FloatMatrix) Times(B *FloatMatrix) *FloatMatrix {
 // If indexes array is non-empty function is applied to elements of A
 // indexed by the contents of indexes.
 func (A *FloatMatrix) Apply(fn func(float64) float64, indexes ...int) *FloatMatrix {
+	nrows := A.Rows()
+	step := A.LeadingIndex()
+    N := A.NumElements()
     if len(indexes) == 0 {
-        for k, v := range A.elements {
-            A.elements[k] = fn(v)
+		for k := 0; k < N; k++ {
+			rk := realIndex(k, nrows, step)
+            A.elements[rk] = fn(A.elements[rk])
         }
     } else {
-        N := A.NumElements()
         for _, k := range indexes {
-            if k < 0 {
-                k += N
-            }
-            A.elements[k] = fn(A.elements[k])
+			k = (k + N) % N
+			rk := realIndex(k, nrows, step)
+            A.elements[rk] = fn(A.elements[rk])
         }
     }
     return A
@@ -200,54 +229,38 @@ func (A *FloatMatrix) Apply(fn func(float64) float64, indexes ...int) *FloatMatr
 //  For all i in A:       A[i]          = fn(A[i], x)           if len(indexes) == 0
 //  For all i in indexes: A[indexes[i]] = fn(A[indexes[i]], x)  if len(indexes) > 0
 func (A *FloatMatrix) ApplyConst(x float64, fn func(float64, float64) float64, indexes ...int) *FloatMatrix {
+	nrows := A.Rows()
+	step := A.LeadingIndex()
+    N := A.NumElements()
     if len(indexes) == 0 {
-        for k, v := range A.elements {
-            A.elements[k] = fn(v, x)
+		for k := 0; k < N; k++ {
+			rk := realIndex(k, nrows, step)
+            A.elements[rk] = fn(A.elements[rk], x)
         }
     } else {
-        N := A.NumElements()
         for _, k := range indexes {
-            if k < 0 {
-                k += N
-            }
-            A.elements[k] = fn(A.elements[k], x)
+			k = (k + N) % N
+			rk := realIndex(k, nrows, step)
+            A.elements[rk] = fn(A.elements[rk], x)
         }
     }
     return A
 }
 
-// Compute A = fn(C) by applying function fn to all elements in indexes.
-// For all i in indexes: A[i] = fn(C[i]).
-// If C is nil then computes inplace A = fn(A). If C is not nil then sizes of A and C must match.
-// Returns pointer to self.
-func (A *FloatMatrix) ApplyToIndexes(C *FloatMatrix, indexes []int, fn func(float64) float64) *FloatMatrix {
-    if C != nil && !A.SizeMatch(C.Size()) {
-        return nil
-    }
-    B := C
-    if C == nil {
-        B = A
-    }
-    if len(indexes) > 0 {
-        for _, v := range indexes {
-            A.elements[v] = fn(B.elements[v])
-        }
-    }
-    return A
-}
 
 // Compute A = fn(A, x) by applying function fn element wise to A.
 //  For all i in indexes: A[indexes[i]] = fn(A[indexes[i]], values[i])
-func (A *FloatMatrix) ApplyConstValues(values []float64, fn func(float64, float64) float64, indexes []int) *FloatMatrix {
+func (A *FloatMatrix) ApplyConstValues(values []float64, fn func(float64, float64) float64, indexes... int) *FloatMatrix {
+	nrows := A.Rows()
+	step := A.LeadingIndex()
     N := A.NumElements()
     for i, k := range indexes {
         if i > len(values) {
             return A
         }
-        if k < 0 {
-            k += N
-        }
-        A.elements[k] = fn(A.elements[k], values[i])
+		k = (k + N) % N
+		rk := realIndex(k, nrows, step)
+        A.elements[rk] = fn(A.elements[rk], values[i])
     }
     return A
 }
@@ -255,17 +268,19 @@ func (A *FloatMatrix) ApplyConstValues(values []float64, fn func(float64, float6
 // Find element-wise maximum. 
 func (A *FloatMatrix) Max(indexes ...int) float64 {
     m := math.Inf(-1)
+	nrows := A.Rows()
+	step := A.LeadingIndex()
+    N := A.NumElements()
     if len(indexes) == 0 {
-        for _, v := range A.elements {
-            m = math.Max(m, v)
+		for k := 0; k < N; k++ {
+			rk := realIndex(k, nrows, step)
+            m = math.Max(m, A.elements[rk])
         }
     } else {
-        N := A.NumElements()
         for _, k := range indexes {
-            if k < 0 {
-                k = N + k
-            }
-            m = math.Max(m, A.elements[k])
+			k = (k + N) % N
+			rk := realIndex(k, nrows, step)
+            m = math.Max(m, A.elements[rk])
         }
     }
     return m
@@ -274,17 +289,19 @@ func (A *FloatMatrix) Max(indexes ...int) float64 {
 // Find element-wise minimum. 
 func (A *FloatMatrix) Min(indexes ...int) float64 {
     m := math.Inf(+1)
+	nrows := A.Rows()
+	step := A.LeadingIndex()
+    N := A.NumElements()
     if len(indexes) == 0 {
-        for _, v := range A.elements {
-            m = math.Min(m, v)
+		for k := 0; k < N; k++ {
+			rk := realIndex(k, nrows, step)
+            m = math.Min(m, A.elements[rk])
         }
     } else {
-        N := A.NumElements()
         for _, k := range indexes {
-            if k < 0 {
-                k = N + k
-            }
-            m = math.Min(m, A.elements[k])
+			k = (k + N) % N
+			rk := realIndex(k, nrows, step)
+            m = math.Min(m, A.elements[rk])
         }
     }
     return m
@@ -293,17 +310,20 @@ func (A *FloatMatrix) Min(indexes ...int) float64 {
 // Return sum of elements
 func (A *FloatMatrix) Sum(indexes ...int) float64 {
     m := 0.0
+	nrows := A.Rows()
+	step := A.LeadingIndex()
+    N := A.NumElements()
     if len(indexes) == 0 {
-        for _, v := range A.elements {
-            m += v
+		for k := 0; k < N; k++ {
+			rk := realIndex(k, nrows, step)
+            m += A.elements[rk]
         }
     } else {
         N := A.NumElements()
         for _, k := range indexes {
-            if k < 0 {
-                k = N + k
-            }
-            m += A.elements[k]
+			k = (k + N) % N
+			rk := realIndex(k, nrows, step)
+            m += A.elements[rk]
         }
     }
     return m

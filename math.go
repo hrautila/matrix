@@ -119,7 +119,10 @@ func Times(A, B *FloatMatrix) *FloatMatrix {
     N := B.Cols()
 	P := B.Rows()
     C := FloatZeros(M, N)
-	calgo.Mult(C.FloatArray(), A.FloatArray(), B.FloatArray(), 1.0, M, N, P)
+	ldA := A.LeadingIndex()
+	ldB := B.LeadingIndex()
+	ldC := C.LeadingIndex()
+	calgo.Mult(C.FloatArray(), A.FloatArray(), B.FloatArray(), 1.0, ldC, ldA, ldB, M, N, P)
     return C
 }
 
@@ -150,12 +153,12 @@ func ApplyConst(A *FloatMatrix, x float64, fn func(float64, float64) float64, in
 // Makes a copy C of A and applies function fn to elements of the new copy C pointed
 // by the contexts of indexes array. New value of element in C is fn(A[indexes[i]], values[i]).
 // Returns new matrix.
-func ApplyConstValues(A *FloatMatrix, values []float64, fn func(float64, float64) float64, indexes []int) *FloatMatrix {
+func ApplyConstValues(A *FloatMatrix, values []float64, fn func(float64, float64) float64, indexes... int) *FloatMatrix {
     if A == nil {
         return A
     }
     C := A.Copy()
-    return C.ApplyConstValues(values, fn, indexes)
+    return C.ApplyConstValues(values, fn, indexes...)
 }
 
 // Find element-wise maximum. 

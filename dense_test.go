@@ -141,7 +141,7 @@ func TestIndexing(t *testing.T) {
     t.Logf("-1: %v\n", A.GetIndex(-1))
     // this should fail: index out of bounds
     //t.Logf(" 6: %v\n", A.GetIndex(6))
-    t.Logf(" every 2nd: %v\n", A.GetIndexes(Indexes(0, A.NumElements(), 2)))
+    t.Logf(" every 2nd: %v\n", A.GetIndexes(Indexes(0, A.NumElements(), 2)...))
 }
 
 func testScalars(t *testing.T) {
@@ -208,6 +208,38 @@ func TestFromTable2(t *testing.T) {
     t.Logf("b=\n%v\n", b)
 }
 
+func TestSubMatrix(t *testing.T) {
+    data := [][]float64{
+        []float64{1, 2, 3},
+        []float64{4, 5, 6},
+        []float64{7, 8, 9}}
+
+    A := FloatMatrixFromTable(data)
+	b := A.SubMatrix(1, 1)
+	t.Logf("A=\n%v\n", A)
+	t.Logf("b.NumElements: %d, b=\n%v\n", b.NumElements(), b)
+	r0 := A.SubMatrix(0, 0, 1, A.Cols())
+	c0 := A.SubMatrix(0, 0, A.Rows(), 1)
+	t.Logf("r0=\n%v\n", r0)
+	t.Logf("c0=\n%v\n", c0)
+	b.Scale(2.0)
+	t.Logf("2*b=\n%v\n", b)
+	r0.Add(5.0)
+	c0.Add(3.0, 1, 2)
+	t.Logf("r0+5=\n%v\n", r0)
+	t.Logf("c0[1,2]+3.0=\n%v\n", c0)
+
+	t.Logf("A=\n%v\n", A)
+	b.SubMatrixOf(A, 0, 0, 2, 2)
+	t.Logf("b.SubmatrixOf(A, 0, 0, 2, 2)\n%v\n", b)
+	c := b.Copy()
+	t.Logf("c = b.Copy()\n%v\n", c)
+	c.Exp()
+	t.Logf("c.Exp()\n%v\n", c)
+	b.Set(c)
+	t.Logf("b.Set(c)\n%v\n", b)
+	t.Logf("A=\n%v\n", A)
+}
 // Local Variables:
 // tab-width: 4
 // End:
