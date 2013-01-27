@@ -239,6 +239,15 @@ func TestSubMatrix(t *testing.T) {
 	b.Set(c)
 	t.Logf("b.Set(c)\n%v\n", b)
 	t.Logf("A=\n%v\n", A)
+	diag := A.SubMatrix(0, 0, 1, A.Cols(), A.LeadingIndex()+1)
+	t.Logf("diag= %d elements\n%v\n", diag.NumElements(), diag)
+	diag.SetIndexesFromArray([]float64{1.0, 2.0, 3.0}, 0, 1, 2)
+	t.Logf("diag=\n%v\n", diag)
+	t.Logf("A=\n%v\n", A)
+	foo := A.SubMatrix(0, 0, A.Rows()-1, 2, A.LeadingIndex()+1)
+	t.Logf("foo=\n%v\n", foo)
+	faa := A.SubMatrix(0, 1, A.Rows()-1, 2, A.LeadingIndex()+1)
+	t.Logf("faa=\n%v\n", faa)
 }
 // Local Variables:
 // tab-width: 4
