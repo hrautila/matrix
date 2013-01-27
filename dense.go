@@ -221,38 +221,54 @@ func FloatDiagonal(rows int, values ...float64) *FloatMatrix {
 }
 
 // Make a submatrix of A starting from position row, col. Returns a new matrix.
+// The size argument can be either: nrows, ncols or nrows, ncols, nstep.
+// The first form is used to create row or column vectors or normal submatrices.
+// Three argument form is used to create diagonal vectors by setting nrows to one,
+// ncols to number of columns and nstep to A.LeadingIndex()+1. Other combinations
+// of parameters in three argument form may create unexpected access patterns to
+// underlying matrix. 
 func (A *FloatMatrix) SubMatrix(row, col int, size... int) *FloatMatrix {
-	var nrows, ncols int
 	M := new(FloatMatrix)
-	if len(size) < 2 {
-		nrows = A.Rows() - row
-		ncols = A.Cols() - col
-	} else {
+	nrows := A.Rows() - row
+	ncols := A.Cols() - col
+	nstep := A.LeadingIndex()
+	switch {
+	case len(size) == 2:
 		nrows = size[0]
 		ncols = size[1]
+	case len(size) > 2:
+		nrows = size[0]
+		ncols = size[1]
+		nstep = size[2]
 	}
 	// can we support mapping a matrix on a vector ??
 	M.elements = A.elements[col*A.LeadingIndex() + row:]
 	M.rows = nrows
 	M.cols = ncols
-	M.step = A.LeadingIndex()
+	M.step = nstep
 	return M
 }
 
-// Set A to be submatrix of B
+// Set A to be submatrix of B. Changes contents of A. Returns matrix A. 
 func (A *FloatMatrix) SubMatrixOf(B *FloatMatrix, row, col int, size... int) *FloatMatrix {
-	 nrows := B.Rows() - row
-	 ncols := B.Cols() - col
-	 if len(size) >= 2 {
-		 nrows = size[0]
-		 ncols = size[1]
-	 }
-	 A.elements = B.elements[col*B.LeadingIndex()+row:]
-	 A.rows = nrows
-	 A.cols = ncols
-	 A.step = B.LeadingIndex()
-	 return A
- }
+	nrows := B.Rows() - row
+	ncols := B.Cols() - col
+	nstep := B.LeadingIndex()
+	switch {
+	case len(size) == 2:
+		nrows = size[0]
+		ncols = size[1]
+	case len(size) > 2:
+		nrows = size[0]
+		ncols = size[1]
+		nstep = size[2]
+	}
+	A.elements = B.elements[col*B.LeadingIndex()+row:]
+	A.rows = nrows
+	A.cols = ncols
+	A.step = nstep
+	return A
+}
 
  // Return the flat column-major element array.
  func (A *FloatMatrix) FloatArray() []float64 {
