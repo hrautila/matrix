@@ -15,6 +15,8 @@ type Matrix interface {
     Cols() int
     // The number of elements in this matrix.
     NumElements() int
+    // size of the leading index. 
+    LeadingIndex() int
     // Matrix in string format.
     String() string
     // Make a copy  and return as Matrix interface type.
@@ -134,7 +136,7 @@ func Reshape(m Matrix, rows, cols int) {
 }
 
 // Set x = y ie. copy y to x. Matrices must have same number of elements but are
-// not required to have same shape.
+// not required to have same shape. **DEPRECEATED**
 func Set(x, y Matrix) {
     if x.NumElements() != y.NumElements() {
         return
@@ -144,9 +146,9 @@ func Set(x, y Matrix) {
     }
     switch x.(type) {
     case *FloatMatrix:
-        copy(x.(*FloatMatrix).FloatArray(), y.(*FloatMatrix).FloatArray())
+		x.(*FloatMatrix).Set(y.(*FloatMatrix))
     case *ComplexMatrix:
-        copy(x.(*ComplexMatrix).ComplexArray(), y.(*ComplexMatrix).ComplexArray())
+		x.(*ComplexMatrix).Set(y.(*ComplexMatrix))
     }
 }
 
@@ -253,8 +255,8 @@ func Indexes(specs ...int) []int {
     return iset
 }
 
-// translate submatrix direct index to underlying matrix index.
-// (relative to start of submatrix.)
+// Translate submatrix direct index to underlying matrix index.
+// (relative to the start of submatrix.)
 func realIndex(index, nrows, nstep int) int {
 	if nrows == nstep {
 		return index
