@@ -73,13 +73,19 @@ func FloatNormal(rows, cols int) *FloatMatrix {
 }
 
 // Create symmetric n by n random  matrix with elements from [0.0, 1.0).
-func FloatUniformSymmetric(n int) *FloatMatrix {
+func FloatUniformSymmetric(n int, uplo ...Tridiagonal) *FloatMatrix {
+	var symm Tridiagonal = Symmetric
+	if len(uplo) > 0 {
+		symm = uplo[0]
+	}
     A := FloatZeros(n, n)
     for i := 0; i < n; i++ {
         for j := i; j < n; j++ {
             val := rand.Float64()
-            A.SetAt(i, j, val)
-            if i != j {
+			if symm == Symmetric || symm == Upper {
+				A.SetAt(i, j, val)
+			}
+            if i != j && (symm == Symmetric || symm == Lower) {
                 A.SetAt(j, i, val)
             }
         }
@@ -88,13 +94,19 @@ func FloatUniformSymmetric(n int) *FloatMatrix {
 }
 
 // Create symmetric n by n random  matrix with elements from normal distribution.
-func FloatNormalSymmetric(n int) *FloatMatrix {
+func FloatNormalSymmetric(n int, uplo ...Tridiagonal) *FloatMatrix {
+	var symm Tridiagonal = Symmetric
+	if len(uplo) > 0 {
+		symm = uplo[0]
+	}
     A := FloatZeros(n, n)
     for i := 0; i < n; i++ {
         for j := i; j < n; j++ {
             val := rand.NormFloat64()
-            A.SetAt(i, j, val)
-            if i != j {
+			if symm == Symmetric || symm == Upper {
+				A.SetAt(i, j, val)
+			}
+            if i != j && (symm == Symmetric || symm == Lower) {
                 A.SetAt(j, i, val)
             }
         }
