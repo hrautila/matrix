@@ -65,6 +65,12 @@ type DataOrder int
 const RowOrder = DataOrder(0)
 const ColumnOrder = DataOrder(1)
 
+// Tridiagonal matrix type
+type Tridiagonal int
+const Symmetric = Tridiagonal(0)
+const Lower = Tridiagonal(1)
+const Upper = Tridiagonal(2)
+
 // Matrix dimensions, rows, cols and leading index. For column major matrices 
 // leading index is equal to row count.
 type dimensions struct {
