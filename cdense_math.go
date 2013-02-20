@@ -121,12 +121,11 @@ func (A *ComplexMatrix) Div(B *ComplexMatrix) *ComplexMatrix {
     if !A.SizeMatch(B.Size()) {
         return A
     }
-	nrows := A.Rows()
-	step := A.LeadingIndex()
     N := A.NumElements()
     for k := 0; k < N; k++ {
-		rk := realIndex(k, nrows, step)
-        A.elements[rk] /= B.elements[rk]
+		rka := realIndex(k, A.Rows(), A.LeadingIndex())
+		rkb := realIndex(k, B.Rows(), B.LeadingIndex())
+        A.elements[rka] /= B.elements[rkb]
     }
     return A
 }
@@ -137,12 +136,11 @@ func (A *ComplexMatrix) Mul(B *ComplexMatrix) *ComplexMatrix {
     if !A.SizeMatch(B.Size()) {
         return A
     }
-	nrows := A.Rows()
-	step := A.LeadingIndex()
     N := A.NumElements()
     for k := 0; k < N; k++ {
-		rk := realIndex(k, nrows, step)
-        A.elements[rk] *= B.elements[rk]
+		rka := realIndex(k, A.Rows(), A.LeadingIndex())
+		rkb := realIndex(k, B.Rows(), B.LeadingIndex())
+        A.elements[rka] *= B.elements[rkb]
     }
     return A
 }
@@ -153,12 +151,11 @@ func (A *ComplexMatrix) Plus(B *ComplexMatrix) *ComplexMatrix {
     if !A.SizeMatch(B.Size()) {
         return A
     }
-	nrows := A.Rows()
-	step := A.LeadingIndex()
     N := A.NumElements()
     for k := 0; k < N; k++ {
-		rk := realIndex(k, nrows, step)
-        A.elements[rk] += B.elements[rk]
+		rka := realIndex(k, A.Rows(), A.LeadingIndex())
+		rkb := realIndex(k, B.Rows(), B.LeadingIndex())
+        A.elements[rka] += B.elements[rkb]
     }
     return A
 }
@@ -169,12 +166,11 @@ func (A *ComplexMatrix) Minus(B *ComplexMatrix) *ComplexMatrix {
     if !A.SizeMatch(B.Size()) {
         return A
     }
-	nrows := A.Rows()
-	step := A.LeadingIndex()
     N := A.NumElements()
     for k := 0; k < N; k++ {
-		rk := realIndex(k, nrows, step)
-        A.elements[rk] -= B.elements[rk]
+		rka := realIndex(k, A.Rows(), A.LeadingIndex())
+		rkb := realIndex(k, B.Rows(), B.LeadingIndex())
+        A.elements[rka] -= B.elements[rkb]
     }
     return A
 }

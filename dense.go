@@ -282,6 +282,17 @@ func (A *FloatMatrix) SubMatrixOf(B *FloatMatrix, row, col int, size... int) *Fl
 	return A
 }
 
+// Return diagonal of matrix as submatrix vector.
+func (A *FloatMatrix) Diag() *FloatMatrix {
+	if A.Rows() < A.Cols() {
+		return A.SubMatrix(0, 0, 1, A.Rows(), A.LeadingIndex()+1)
+	} else if A.Rows() > A.Cols() {
+		return A.SubMatrix(0, 0, 1, A.Cols(), A.LeadingIndex()+1)
+	}
+	// here A.Rows() == A.Cols(): standard square matrix
+	return A.SubMatrix(0, 0, 1, A.Rows(), A.LeadingIndex()+1)
+}
+
  // Return the flat column-major element array.
  func (A *FloatMatrix) FloatArray() []float64 {
 	 if A == nil {
@@ -356,16 +367,16 @@ func (A *FloatMatrix) SubMatrixOf(B *FloatMatrix, row, col int, size... int) *Fl
 
 
  // Set A = B, copy values, A and B sizes must match.
- func (A *FloatMatrix) Set(B *FloatMatrix) error {
-	 if ! A.SizeMatch(B.Size()) {
-		 return errors.New("A != B: size mismatch")
-	 }
-	 ldB := B.LeadingIndex()
-	 ldA := A.LeadingIndex()
-	 nrows := A.Rows()
-	 for k := 0; k < A.Cols(); k++ {
-		copy(A.elements[k*ldA:], B.elements[k*ldB:k*ldB+nrows])
+func (A *FloatMatrix) Set(B *FloatMatrix) error {
+	if ! A.SizeMatch(B.Size()) {
+		return errors.New("A != B: size mismatch")
 	}
+    N := A.NumElements()
+    for k := 0; k < N; k++ {
+		rka := realIndex(k, A.Rows(), A.LeadingIndex())
+		rkb := realIndex(k, B.Rows(), B.LeadingIndex())
+        A.elements[rka] = B.elements[rkb]
+    }
 	return nil
 }
 

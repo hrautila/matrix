@@ -133,14 +133,14 @@ func (A *FloatMatrix) AddIndexes(indexes []int, values []float64) *FloatMatrix {
 // do not match A is returned unaltered.
 func (A *FloatMatrix) Div(B *FloatMatrix) *FloatMatrix {
     if !A.SizeMatch(B.Size()) {
+		onError("div: size mismatch")
         return A
     }
-	nrows := A.Rows()
-	step := A.LeadingIndex()
     N := A.NumElements()
     for k := 0; k < N; k++ {
-		rk := realIndex(k, nrows, step)
-        A.elements[rk] /= B.elements[rk]
+		rka := realIndex(k, A.Rows(), A.LeadingIndex())
+		rkb := realIndex(k, B.Rows(), B.LeadingIndex())
+        A.elements[rka] /= B.elements[rkb]
     }
     return A
 }
@@ -149,14 +149,14 @@ func (A *FloatMatrix) Div(B *FloatMatrix) *FloatMatrix {
 // do not match A is returned unaltered.
 func (A *FloatMatrix) Mul(B *FloatMatrix) *FloatMatrix {
     if !A.SizeMatch(B.Size()) {
+		onError("mul: size mismatch")
         return A
     }
-	nrows := A.Rows()
-	step := A.LeadingIndex()
     N := A.NumElements()
     for k := 0; k < N; k++ {
-		rk := realIndex(k, nrows, step)
-        A.elements[rk] *= B.elements[rk]
+		rka := realIndex(k, A.Rows(), A.LeadingIndex())
+		rkb := realIndex(k, B.Rows(), B.LeadingIndex())
+        A.elements[rka] *= B.elements[rkb]
     }
     return A
 }
@@ -165,14 +165,14 @@ func (A *FloatMatrix) Mul(B *FloatMatrix) *FloatMatrix {
 // do not match A is returned unaltered.
 func (A *FloatMatrix) Plus(B *FloatMatrix) *FloatMatrix {
     if !A.SizeMatch(B.Size()) {
+		onError("plus: size mismatch")
         return A
     }
-	nrows := A.Rows()
-	step := A.LeadingIndex()
     N := A.NumElements()
     for k := 0; k < N; k++ {
-		rk := realIndex(k, nrows, step)
-        A.elements[rk] += B.elements[rk]
+		rka := realIndex(k, A.Rows(), A.LeadingIndex())
+		rkb := realIndex(k, B.Rows(), B.LeadingIndex())
+        A.elements[rka] += B.elements[rkb]
     }
     return A
 }
@@ -182,14 +182,14 @@ func (A *FloatMatrix) Plus(B *FloatMatrix) *FloatMatrix {
 // submatrices.
 func (A *FloatMatrix) Minus(B *FloatMatrix) *FloatMatrix {
     if !A.SizeMatch(B.Size()) {
+		onError("minus: size mismatch")
         return A
     }
-	nrows := A.Rows()
-	step := A.LeadingIndex()
     N := A.NumElements()
     for k := 0; k < N; k++ {
-		rk := realIndex(k, nrows, step)
-        A.elements[rk] -= B.elements[rk]
+		rka := realIndex(k, A.Rows(), A.LeadingIndex())
+		rkb := realIndex(k, B.Rows(), B.LeadingIndex())
+        A.elements[rka] -= B.elements[rkb]
     }
     return A
 }

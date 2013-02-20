@@ -11,11 +11,10 @@ func (A *ComplexMatrix) Equal(B *ComplexMatrix) bool {
     if A.Rows() != B.Rows() || A.Cols() != B.Cols() {
         return false
     }
-	nrows := A.Rows()
-	step := A.LeadingIndex()
 	for k := 0; k < A.NumElements(); k++ {
-		rk := realIndex(k, nrows, step)
-		if A.elements[rk] != B.elements[rk] {
+		rka := realIndex(k, A.Rows(), A.LeadingIndex())
+		rkb := realIndex(k, B.Rows(), B.LeadingIndex())
+		if A.elements[rka] != B.elements[rkb] {
 			return false
 		}
 	}

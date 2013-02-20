@@ -248,6 +248,8 @@ func TestSubMatrix(t *testing.T) {
 	t.Logf("foo=\n%v\n", foo)
 	faa := A.SubMatrix(0, 1, A.Rows()-1, 2, A.LeadingIndex()+1)
 	t.Logf("faa=\n%v\n", faa)
+	d2 := A.Diag()
+	t.Logf("A.Diag()=\n%v\n", d2)
 }
 // Local Variables:
 // tab-width: 4

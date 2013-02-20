@@ -7,7 +7,7 @@
 package matrix
 
 import (
-    "errors"
+    //"errors"
     "fmt"
     "strconv"
     "strings"
@@ -101,7 +101,7 @@ func floatParseMatLab(s string) (A *FloatMatrix, err error) {
     start := strings.Index(s, "[")
     end := strings.LastIndex(s, "]")
     if start == -1 || end == -1 {
-        err = errors.New("Unrecognized matrix string")
+        err = onError("Unrecognized matrix string")
         return
     }
     rowStrings := strings.Split(s[start+1:end], ";")
@@ -174,7 +174,7 @@ rows:
             firstRow = false
         }
         if collen != ncols {
-            err = errors.New(fmt.Sprintf("row %d: num columns %d, expected %d\n", currow, collen, ncols))
+            err = onError(fmt.Sprintf("row %d: num columns %d, expected %d\n", currow, collen, ncols))
             return
         }
         arrays = append(arrays, row)
@@ -191,13 +191,13 @@ func floatParseSpe(s string) (A *FloatMatrix, err error) {
     start := strings.Index(s, "{")
     end := strings.LastIndex(s, "}")
     if start == -1 || end == -1 {
-        err = errors.New("Unrecognized matrix string")
+        err = onError("Unrecognized matrix string")
         return
     }
     dstart := strings.Index(s, "[")
     dend := strings.Index(s, "]")
     if dstart == -1 || dend == -1 {
-        err = errors.New("Unrecognized matrix string")
+        err = onError("Unrecognized matrix string")
         return
     }
 
