@@ -6,7 +6,10 @@
 
 package matrix
 
-import "fmt"
+import (
+    "fmt"
+    "errors"
+)
 
 const (
     //The matrix returned was nil.
@@ -60,3 +63,22 @@ var (
     //Not corrent type
     ExceptionIllegalType error_ = error_(exceptionIllegalType)
 )
+
+var panicOnError bool = false
+
+func PanicOnError(flag bool) {
+    panicOnError = flag
+}
+
+func onError(msg string) error {
+    if panicOnError {
+        panic(msg)
+    }
+    return errors.New(msg)
+}
+
+
+// Local Variables:
+// tab-width: 4
+// indent-tabs-mode: nil
+// End:
