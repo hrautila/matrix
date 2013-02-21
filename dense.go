@@ -7,7 +7,7 @@
 package matrix
 
 import (
-    "errors"
+    //"errors"
     //"fmt"
     "math"
     "math/cmplx"
@@ -366,10 +366,25 @@ func (A *FloatMatrix) Diag() *FloatMatrix {
  }
 
 
+// Copy A to B, A and B number of elements need not match.
+// Copies min(A.NumElements(), B.NumElements()) from start of A to start of B.
+func (A *FloatMatrix) CopyTo(B *FloatMatrix) error {
+    N := A.NumElements()
+	if N > B.NumElements() {
+		N = B.NumElements()
+	}
+    for k := 0; k < N; k++ {
+		rka := realIndex(k, A.Rows(), A.LeadingIndex())
+		rkb := realIndex(k, B.Rows(), B.LeadingIndex())
+        B.elements[rkb] = A.elements[rka]
+    }
+	return nil
+}
+
  // Set A = B, copy values, A and B sizes must match.
 func (A *FloatMatrix) Set(B *FloatMatrix) error {
 	if ! A.SizeMatch(B.Size()) {
-		return errors.New("A != B: size mismatch")
+		return onError("A != B: size mismatch")
 	}
     N := A.NumElements()
     for k := 0; k < N; k++ {
