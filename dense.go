@@ -74,17 +74,17 @@ func FloatNormal(rows, cols int) *FloatMatrix {
 
 // Create symmetric n by n random  matrix with elements from [0.0, 1.0).
 func FloatUniformSymmetric(n int, uplo ...Tridiagonal) *FloatMatrix {
-	var symm Tridiagonal = Symmetric
-	if len(uplo) > 0 {
-		symm = uplo[0]
-	}
+    var symm Tridiagonal = Symmetric
+    if len(uplo) > 0 {
+        symm = uplo[0]
+    }
     A := FloatZeros(n, n)
     for i := 0; i < n; i++ {
         for j := i; j < n; j++ {
             val := rand.Float64()
-			if symm == Symmetric || symm == Upper {
-				A.SetAt(i, j, val)
-			}
+            if symm == Symmetric || symm == Upper {
+                A.SetAt(i, j, val)
+            }
             if i != j && (symm == Symmetric || symm == Lower) {
                 A.SetAt(j, i, val)
             }
@@ -95,17 +95,17 @@ func FloatUniformSymmetric(n int, uplo ...Tridiagonal) *FloatMatrix {
 
 // Create symmetric n by n random  matrix with elements from normal distribution.
 func FloatNormalSymmetric(n int, uplo ...Tridiagonal) *FloatMatrix {
-	var symm Tridiagonal = Symmetric
-	if len(uplo) > 0 {
-		symm = uplo[0]
-	}
+    var symm Tridiagonal = Symmetric
+    if len(uplo) > 0 {
+        symm = uplo[0]
+    }
     A := FloatZeros(n, n)
     for i := 0; i < n; i++ {
         for j := i; j < n; j++ {
             val := rand.NormFloat64()
-			if symm == Symmetric || symm == Upper {
-				A.SetAt(i, j, val)
-			}
+            if symm == Symmetric || symm == Upper {
+                A.SetAt(i, j, val)
+            }
             if i != j && (symm == Symmetric || symm == Lower) {
                 A.SetAt(j, i, val)
             }
@@ -239,160 +239,159 @@ func FloatDiagonal(rows int, values ...float64) *FloatMatrix {
 // ncols to number of columns and nstep to A.LeadingIndex()+1. Other combinations
 // of parameters in three argument form may create unexpected access patterns to
 // underlying matrix. 
-func (A *FloatMatrix) SubMatrix(row, col int, size... int) *FloatMatrix {
-	M := new(FloatMatrix)
-	nrows := A.Rows() - row
-	ncols := A.Cols() - col
-	nstep := A.LeadingIndex()
-	switch {
-	case len(size) == 2:
-		nrows = size[0]
-		ncols = size[1]
-	case len(size) > 2:
-		nrows = size[0]
-		ncols = size[1]
-		nstep = size[2]
-	}
-	// can we support mapping a matrix on a vector ??
-	M.elements = A.elements[col*A.LeadingIndex() + row:]
-	M.rows = nrows
-	M.cols = ncols
-	M.step = nstep
-	return M
+func (A *FloatMatrix) SubMatrix(row, col int, size ...int) *FloatMatrix {
+    M := new(FloatMatrix)
+    nrows := A.Rows() - row
+    ncols := A.Cols() - col
+    nstep := A.LeadingIndex()
+    switch {
+    case len(size) == 2:
+        nrows = size[0]
+        ncols = size[1]
+    case len(size) > 2:
+        nrows = size[0]
+        ncols = size[1]
+        nstep = size[2]
+    }
+    // can we support mapping a matrix on a vector ??
+    M.elements = A.elements[col*A.LeadingIndex()+row:]
+    M.rows = nrows
+    M.cols = ncols
+    M.step = nstep
+    return M
 }
 
 // Set A to be submatrix of B. Changes contents of A. Returns matrix A. 
-func (A *FloatMatrix) SubMatrixOf(B *FloatMatrix, row, col int, size... int) *FloatMatrix {
-	nrows := B.Rows() - row
-	ncols := B.Cols() - col
-	nstep := B.LeadingIndex()
-	switch {
-	case len(size) == 2:
-		nrows = size[0]
-		ncols = size[1]
-	case len(size) > 2:
-		nrows = size[0]
-		ncols = size[1]
-		nstep = size[2]
-	}
-	A.elements = B.elements[col*B.LeadingIndex()+row:]
-	A.rows = nrows
-	A.cols = ncols
-	A.step = nstep
-	return A
+func (A *FloatMatrix) SubMatrixOf(B *FloatMatrix, row, col int, size ...int) *FloatMatrix {
+    nrows := B.Rows() - row
+    ncols := B.Cols() - col
+    nstep := B.LeadingIndex()
+    switch {
+    case len(size) == 2:
+        nrows = size[0]
+        ncols = size[1]
+    case len(size) > 2:
+        nrows = size[0]
+        ncols = size[1]
+        nstep = size[2]
+    }
+    A.elements = B.elements[col*B.LeadingIndex()+row:]
+    A.rows = nrows
+    A.cols = ncols
+    A.step = nstep
+    return A
 }
 
 // Return diagonal of matrix as submatrix vector.
 func (A *FloatMatrix) Diag() *FloatMatrix {
-	if A.Rows() < A.Cols() {
-		return A.SubMatrix(0, 0, 1, A.Rows(), A.LeadingIndex()+1)
-	} else if A.Rows() > A.Cols() {
-		return A.SubMatrix(0, 0, 1, A.Cols(), A.LeadingIndex()+1)
-	}
-	// here A.Rows() == A.Cols(): standard square matrix
-	return A.SubMatrix(0, 0, 1, A.Rows(), A.LeadingIndex()+1)
+    if A.Rows() < A.Cols() {
+        return A.SubMatrix(0, 0, 1, A.Rows(), A.LeadingIndex()+1)
+    } else if A.Rows() > A.Cols() {
+        return A.SubMatrix(0, 0, 1, A.Cols(), A.LeadingIndex()+1)
+    }
+    // here A.Rows() == A.Cols(): standard square matrix
+    return A.SubMatrix(0, 0, 1, A.Rows(), A.LeadingIndex()+1)
 }
 
- // Return the flat column-major element array.
- func (A *FloatMatrix) FloatArray() []float64 {
-	 if A == nil {
-		 return nil
-	 }
-	 return A.elements
- }
+// Return the flat column-major element array.
+func (A *FloatMatrix) FloatArray() []float64 {
+    if A == nil {
+        return nil
+    }
+    return A.elements
+}
 
- // Return nil for complex array 
- func (A *FloatMatrix) ComplexArray() []complex128 {
-	 return nil
- }
+// Return nil for complex array 
+func (A *FloatMatrix) ComplexArray() []complex128 {
+    return nil
+}
 
- // Return the first element column-major element array.
- func (A *FloatMatrix) Float() float64 {
-	 if A == nil {
-		 return math.NaN()
-	 }
-	 return A.elements[0]
- }
+// Return the first element column-major element array.
+func (A *FloatMatrix) Float() float64 {
+    if A == nil {
+        return math.NaN()
+    }
+    return A.elements[0]
+}
 
- // Return Nan for complex singleton.
- func (A *FloatMatrix) Complex() complex128 {
-	 return cmplx.NaN()
- }
+// Return Nan for complex singleton.
+func (A *FloatMatrix) Complex() complex128 {
+    return cmplx.NaN()
+}
 
- // Test if parameter matrices are of same type as self.
- func (A *FloatMatrix) EqualTypes(mats ...Matrix) bool {
- loop:
-	 for _, m := range mats {
-		 if m == nil {
-			 continue loop
-		 }
-		 switch m.(type) {
-		 case *FloatMatrix: // of same type, NoOp
-		 default: // all others fail.
-			 return false
-		 }
-	 }
-	 return true
- }
+// Test if parameter matrices are of same type as self.
+func (A *FloatMatrix) EqualTypes(mats ...Matrix) bool {
+loop:
+    for _, m := range mats {
+        if m == nil {
+            continue loop
+        }
+        switch m.(type) {
+        case *FloatMatrix: // of same type, NoOp
+        default: // all others fail.
+            return false
+        }
+    }
+    return true
+}
 
- // Get the element in the i'th row and j'th column.
- func (A *FloatMatrix) GetAt(i int, j int) (val float64) {
-	 step := A.LeadingIndex()
-	 //val = A.elements[j*step:j*step+A.Cols()][i]
-	 if i < 0 {
-		 i += A.Rows()
-	 }
-	 if j < 0 {
-		 j += A.Cols()
-	 }
-	 val = A.elements[j*step+i]
-	 return
- }
+// Get the element in the i'th row and j'th column.
+func (A *FloatMatrix) GetAt(i int, j int) (val float64) {
+    step := A.LeadingIndex()
+    //val = A.elements[j*step:j*step+A.Cols()][i]
+    if i < 0 {
+        i += A.Rows()
+    }
+    if j < 0 {
+        j += A.Cols()
+    }
+    val = A.elements[j*step+i]
+    return
+}
 
- // Get elements from column-major indexes. Return new array.
- func (A *FloatMatrix) GetIndexes(indexes ...int) []float64 {
-	 vals := make([]float64, 0)
-	 N := A.NumElements()
-	 for _, k := range indexes {
-		 k = (k + N) % N
-		 rk := realIndex(k, A.Rows(), A.LeadingIndex())
-		 vals = append(vals, A.elements[rk])
-	 }
-	 return vals
- }
+// Get elements from column-major indexes. Return new array.
+func (A *FloatMatrix) GetIndexes(indexes ...int) []float64 {
+    vals := make([]float64, 0)
+    N := A.NumElements()
+    for _, k := range indexes {
+        k = (k + N) % N
+        rk := realIndex(k, A.Rows(), A.LeadingIndex())
+        vals = append(vals, A.elements[rk])
+    }
+    return vals
+}
 
- func (A *FloatMatrix) GetIndex(i int) float64 {
-	 return A.GetIndexes(i)[0]
- }
-
+func (A *FloatMatrix) GetIndex(i int) float64 {
+    return A.GetIndexes(i)[0]
+}
 
 // Copy A to B, A and B number of elements need not match.
 // Copies min(A.NumElements(), B.NumElements()) from start of A to start of B.
 func (A *FloatMatrix) CopyTo(B *FloatMatrix) error {
     N := A.NumElements()
-	if N > B.NumElements() {
-		N = B.NumElements()
-	}
+    if N > B.NumElements() {
+        N = B.NumElements()
+    }
     for k := 0; k < N; k++ {
-		rka := realIndex(k, A.Rows(), A.LeadingIndex())
-		rkb := realIndex(k, B.Rows(), B.LeadingIndex())
+        rka := realIndex(k, A.Rows(), A.LeadingIndex())
+        rkb := realIndex(k, B.Rows(), B.LeadingIndex())
         B.elements[rkb] = A.elements[rka]
     }
-	return nil
+    return nil
 }
 
- // Set A = B, copy values, A and B sizes must match.
+// Set A = B, copy values, A and B sizes must match.
 func (A *FloatMatrix) Set(B *FloatMatrix) error {
-	if ! A.SizeMatch(B.Size()) {
-		return onError("A != B: size mismatch")
-	}
+    if !A.SizeMatch(B.Size()) {
+        return onError("A != B: size mismatch")
+    }
     N := A.NumElements()
     for k := 0; k < N; k++ {
-		rka := realIndex(k, A.Rows(), A.LeadingIndex())
-		rkb := realIndex(k, B.Rows(), B.LeadingIndex())
+        rka := realIndex(k, A.Rows(), A.LeadingIndex())
+        rkb := realIndex(k, B.Rows(), B.LeadingIndex())
         A.elements[rka] = B.elements[rkb]
     }
-	return nil
+    return nil
 }
 
 // Set the element in the i'th row and j'th column to val.
@@ -415,19 +414,19 @@ func (A *FloatMatrix) SetValue(val float64) {
 // Set element values in column-major ordering. Negative indexes are relative 
 // to the last element of the matrix. If len(indexes) is zero sets all elements.
 func (A *FloatMatrix) SetIndexes(val float64, indexes ...int) {
-	nrows := A.Rows()
-	nstep := A.LeadingIndex()
+    nrows := A.Rows()
+    nstep := A.LeadingIndex()
     N := A.NumElements()
-	if len(indexes) == 0 {
-		for k := 0; k < N; k++ {
-			rk := realIndex(k, nrows, nstep)
-			A.elements[rk] = val
-		}
-		return
-	}
+    if len(indexes) == 0 {
+        for k := 0; k < N; k++ {
+            rk := realIndex(k, nrows, nstep)
+            A.elements[rk] = val
+        }
+        return
+    }
     for _, i := range indexes {
-		i = (i + N) % N
-		rk := realIndex(i, nrows, nstep)
+        i = (i + N) % N
+        rk := realIndex(i, nrows, nstep)
         A.elements[rk] = val
     }
 }
@@ -438,27 +437,26 @@ func (A *FloatMatrix) SetIndex(i int, val float64) {
 }
 
 // Set values of indexed elements. 
-func (A *FloatMatrix) SetIndexesFromArray(values []float64, indexes... int) {
-	nrows := A.Rows()
-	nstep := A.LeadingIndex()
-	N := A.NumElements()
+func (A *FloatMatrix) SetIndexesFromArray(values []float64, indexes ...int) {
+    nrows := A.Rows()
+    nstep := A.LeadingIndex()
+    N := A.NumElements()
     for i, k := range indexes {
         if i >= len(values) {
             break
         }
-		k = (k + N) % N
-		rk := realIndex(k, nrows, nstep)
+        k = (k + N) % N
+        rk := realIndex(k, nrows, nstep)
         A.elements[rk] = values[i]
     }
 }
-
 
 // Create a copy of matrix.
 func (A *FloatMatrix) Copy() (B *FloatMatrix) {
     B = new(FloatMatrix)
     B.elements = make([]float64, A.NumElements())
-    B.SetSize(A.Rows(), A.Cols())
-	B.Set(A)
+    B.SetSize(A.Rows(), A.Cols(), A.Rows())
+    B.Set(A)
     return
 }
 
@@ -493,10 +491,7 @@ func transposeFloatArray(rows, cols, step int, data []float64) []float64 {
 // array holding the actual values stays the same.
 func makeFloatMatrix(rows, cols int, elements []float64) *FloatMatrix {
     A := new(FloatMatrix)
-    A.SetSize(rows, cols)
-    //A.rows = rows
-    //A.cols = cols
-    //A.step = rows
+    A.SetSize(rows, cols, rows)
     A.elements = elements
     return A
 }

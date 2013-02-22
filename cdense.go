@@ -8,9 +8,9 @@
 package matrix
 
 import (
+    "errors"
     "math"
     "math/rand"
-	"errors"
 )
 
 // A column-major dense matrix backed by a flat array of all elements.
@@ -165,37 +165,37 @@ func ComplexIdentity(rows, cols int) (A *ComplexMatrix, err error) {
 
 // Make a submatrix of A starting from position row, col. Returns a new matrix.
 // If size not given it is assumed to be [A.Rows()-row, A.Cols()-col].
-func (A *ComplexMatrix) SubMatrix(row, col int, size... int) *ComplexMatrix {
-	var nrows, ncols int
-	M := new(ComplexMatrix)
-	if len(size) < 2 {
-		nrows = A.Rows() - row
-		ncols = A.Cols() - col
-	} else {
-		nrows = size[0]
-		ncols = size[1]
-	}
-	// can we support mapping a matrix on a vector ??
-	M.elements = A.elements[col*A.LeadingIndex() + row:]
-	M.rows = nrows
-	M.cols = ncols
-	M.step = A.LeadingIndex()
-	return M
+func (A *ComplexMatrix) SubMatrix(row, col int, size ...int) *ComplexMatrix {
+    var nrows, ncols int
+    M := new(ComplexMatrix)
+    if len(size) < 2 {
+        nrows = A.Rows() - row
+        ncols = A.Cols() - col
+    } else {
+        nrows = size[0]
+        ncols = size[1]
+    }
+    // can we support mapping a matrix on a vector ??
+    M.elements = A.elements[col*A.LeadingIndex()+row:]
+    M.rows = nrows
+    M.cols = ncols
+    M.step = A.LeadingIndex()
+    return M
 }
 
 // Set A to be submatrix of B
-func (A *ComplexMatrix) SubMatrixOf(B *ComplexMatrix, row, col int, size... int) *ComplexMatrix {
-	 nrows := B.Rows() - row
-	 ncols := B.Cols() - col
-	 if len(size) >= 2 {
-		 nrows = size[0]
-		 ncols = size[1]
-	 }
-	 A.elements = B.elements[col*B.LeadingIndex()+row:]
-	 A.rows = nrows
-	 A.cols = ncols
-	 A.step = B.LeadingIndex()
-	 return A
+func (A *ComplexMatrix) SubMatrixOf(B *ComplexMatrix, row, col int, size ...int) *ComplexMatrix {
+    nrows := B.Rows() - row
+    ncols := B.Cols() - col
+    if len(size) >= 2 {
+        nrows = size[0]
+        ncols = size[1]
+    }
+    A.elements = B.elements[col*B.LeadingIndex()+row:]
+    A.rows = nrows
+    A.cols = ncols
+    A.step = B.LeadingIndex()
+    return A
 }
 
 // Return nil for float array 
@@ -252,7 +252,7 @@ func (A *ComplexMatrix) GetIndexes(indexes ...int) []complex128 {
     N := A.NumElements()
     for _, k := range indexes {
         k = (N + k) % N
-		rk := realIndex(k, A.Rows(), A.LeadingIndex())
+        rk := realIndex(k, A.Rows(), A.LeadingIndex())
         vals = append(vals, A.elements[rk])
     }
     return vals
@@ -344,18 +344,18 @@ func (A *ComplexMatrix) GetSlice(start, end int) []complex128 {
     return A.elements[start:end]
 }
 
- // Set A = B, copy values, A and B sizes must match.
- func (A *ComplexMatrix) Set(B *ComplexMatrix) error {
-	 if ! A.SizeMatch(B.Size()) {
-		 return errors.New("A != B: size mismatch")
-	 }
-	 ldB := B.LeadingIndex()
-	 ldA := A.LeadingIndex()
-	 nrows := A.Rows()
-	 for k := 0; k < A.Cols(); k++ {
-		copy(A.elements[k*ldA:], B.elements[k*ldB:k*ldB+nrows])
-	}
-	return nil
+// Set A = B, copy values, A and B sizes must match.
+func (A *ComplexMatrix) Set(B *ComplexMatrix) error {
+    if !A.SizeMatch(B.Size()) {
+        return errors.New("A != B: size mismatch")
+    }
+    ldB := B.LeadingIndex()
+    ldA := A.LeadingIndex()
+    nrows := A.Rows()
+    for k := 0; k < A.Cols(); k++ {
+        copy(A.elements[k*ldA:], B.elements[k*ldB:k*ldB+nrows])
+    }
+    return nil
 }
 
 // Set the element in the i'th row and j'th column to val.
@@ -364,47 +364,46 @@ func (A *ComplexMatrix) SetAt(val complex128, i int, j int) {
     if i < 0 {
         i = A.Rows() + i
     }
-	if j < 0 {
-		j = A.Cols() + j
-	}
+    if j < 0 {
+        j = A.Cols() + j
+    }
     A.elements[j*step+i] = val
 }
 
 // Set element values in column-major ordering. Negative indexes are relative 
 // to the last element of the matrix. If len(indexes) is zero sets all elements.
 func (A *ComplexMatrix) SetIndexes(val complex128, indexes ...int) {
-	nrows := A.Rows()
-	nstep := A.LeadingIndex()
+    nrows := A.Rows()
+    nstep := A.LeadingIndex()
     N := A.NumElements()
-	if len(indexes) == 0 {
-		for k := 0; k < N; k++ {
-			rk := realIndex(k, nrows, nstep)
-			A.elements[rk] = val
-		}
-		return
-	}
+    if len(indexes) == 0 {
+        for k := 0; k < N; k++ {
+            rk := realIndex(k, nrows, nstep)
+            A.elements[rk] = val
+        }
+        return
+    }
     for _, i := range indexes {
-		i = (i + N) % N
-		rk := realIndex(i, nrows, nstep)
+        i = (i + N) % N
+        rk := realIndex(i, nrows, nstep)
         A.elements[rk] = val
     }
 }
 
-
 // Set i'th element in column-major ordering
 func (A *ComplexMatrix) SetIndex(i int, v complex128) {
-	A.SetIndexes(v, i)
+    A.SetIndexes(v, i)
 }
 
 // Set values of indexed elements.  **DEPRECEATED**
 func (A *ComplexMatrix) SetIndexesFromArray(indexes []int, values []complex128) {
-	N := A.NumElements()
+    N := A.NumElements()
     for i, k := range indexes {
         if i >= len(values) {
             break
         }
-		k = (k + N) % N
-		rk := realIndex(k, A.Rows(), A.LeadingIndex())
+        k = (k + N) % N
+        rk := realIndex(k, A.Rows(), A.LeadingIndex())
         A.elements[rk] = values[i]
     }
 }
@@ -429,8 +428,8 @@ func (A *ComplexMatrix) SetColumnArray(i int, vals []complex128) {
 func (A *ComplexMatrix) Copy() (B *ComplexMatrix) {
     B = new(ComplexMatrix)
     B.elements = make([]complex128, A.NumElements())
-    B.SetSize(A.Rows(), A.Cols())
-	B.Set(A)
+    B.SetSize(A.Rows(), A.Cols(), A.Rows())
+    B.Set(A)
     //copy(B.elements, A.elements)
     return
 }
@@ -444,15 +443,15 @@ func (A *ComplexMatrix) MakeCopy() Matrix {
 // Copies min(A.NumElements(), B.NumElements()) from start of A to start of B.
 func (A *ComplexMatrix) CopyTo(B *ComplexMatrix) error {
     N := A.NumElements()
-	if N > B.NumElements() {
-		N = B.NumElements()
-	}
+    if N > B.NumElements() {
+        N = B.NumElements()
+    }
     for k := 0; k < N; k++ {
-		rka := realIndex(k, A.Rows(), A.LeadingIndex())
-		rkb := realIndex(k, B.Rows(), B.LeadingIndex())
+        rka := realIndex(k, A.Rows(), A.LeadingIndex())
+        rkb := realIndex(k, B.Rows(), B.LeadingIndex())
         B.elements[rkb] = A.elements[rka]
     }
-	return nil
+    return nil
 }
 
 // Copy and transpose matrix. Returns new matrix.
@@ -462,7 +461,6 @@ func (A *ComplexMatrix) Transpose() *ComplexMatrix {
     newelems := transposeComplexArray(rows, cols, A.LeadingIndex(), A.elements)
     return makeComplexMatrix(cols, rows, newelems)
 }
-
 
 // Transpose a column major data array.
 func transposeComplexArray(rows, cols, step int, data []complex128) []complex128 {
@@ -483,7 +481,7 @@ func transposeComplexArray(rows, cols, step int, data []complex128) []complex128
 // array holding the actual values stays the same.
 func makeComplexMatrix(rows, cols int, elements []complex128) *ComplexMatrix {
     A := new(ComplexMatrix)
-    A.SetSize(rows, cols)
+    A.SetSize(rows, cols, rows)
     A.elements = elements
     return A
 }

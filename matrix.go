@@ -67,6 +67,7 @@ const ColumnOrder = DataOrder(1)
 
 // Tridiagonal matrix type
 type Tridiagonal int
+
 const Symmetric = Tridiagonal(0)
 const Lower = Tridiagonal(1)
 const Upper = Tridiagonal(2)
@@ -104,11 +105,14 @@ func (A *dimensions) Size() (int, int) {
     return A.rows, A.cols
 }
 
-// Set dimensions. Does not affect element allocations.
-func (A *dimensions) SetSize(nrows, ncols int) {
+// Set dimensions. Does not affect element allocations. Optional 3rd argument
+// sets also the row stride of data.
+func (A *dimensions) SetSize(nrows, ncols int, step ...int) {
     A.rows = nrows
     A.cols = ncols
-    A.step = A.rows
+    if len(step) > 0 {
+        A.step = step[0]
+    }
 }
 
 // Return the leading index size. Column major matrices it is row count.
@@ -129,14 +133,25 @@ func (A *dimensions) SizeMatch(rows, cols int) bool {
     return A != nil && A.rows == rows && A.cols == cols
 }
 
-// Change matrix shape if number of elements match to rows*cols. 
-func Reshape(m Matrix, rows, cols int) {
+// Change matrix shape if number of elements match to rows*cols. Optional 3rd
+// arguments is the new row stride of data. Row stride is not changed unless given
+// or if current row stride is equal to number of rows in matrix. On the second case
+// new row stride is set equal to new row count.
+func Reshape(m Matrix, rows, cols int, steps ...int) {
+    step := m.LeadingIndex()
+    if m.Rows() == step {
+        // this not a submatrix, (not definitive?)
+        step = rows
+    }
+    if len(steps) > 0 {
+        step = steps[0]
+    }
     if rows*cols == m.NumElements() {
         switch m.(type) {
         case *FloatMatrix:
-            m.(*FloatMatrix).SetSize(rows, cols)
+            m.(*FloatMatrix).SetSize(rows, cols, step)
         case *ComplexMatrix:
-            m.(*ComplexMatrix).SetSize(rows, cols)
+            m.(*ComplexMatrix).SetSize(rows, cols, step)
         }
     }
 }
@@ -152,9 +167,9 @@ func Set(x, y Matrix) {
     }
     switch x.(type) {
     case *FloatMatrix:
-		x.(*FloatMatrix).Set(y.(*FloatMatrix))
+        x.(*FloatMatrix).Set(y.(*FloatMatrix))
     case *ComplexMatrix:
-		x.(*ComplexMatrix).Set(y.(*ComplexMatrix))
+        x.(*ComplexMatrix).Set(y.(*ComplexMatrix))
     }
 }
 
@@ -202,7 +217,7 @@ func RowIndexes(m Matrix, row int) []int {
     }
     iset := make([]int, N)
     for i := 0; i < N; i++ {
-        k := i * N + row
+        k := i*N + row
         iset[i] = k
     }
     return iset
@@ -264,13 +279,13 @@ func Indexes(specs ...int) []int {
 // Translate submatrix direct index to underlying matrix index.
 // (relative to the start of submatrix.)
 func realIndex(index, nrows, nstep int) int {
-	if nrows == nstep {
-		return index
-	}
-	col := index / nrows
-	row := index - col * nrows
+    if nrows == nstep {
+        return index
+    }
+    col := index / nrows
+    row := index - col*nrows
 
-	return col*nstep + row
+    return col*nstep + row
 }
 
 // Local Variables:
