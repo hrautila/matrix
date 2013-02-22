@@ -7,8 +7,8 @@
 package matrix
 
 import (
-    "fmt"
     "errors"
+    "fmt"
 )
 
 const (
@@ -76,7 +76,6 @@ func onError(msg string) error {
     }
     return errors.New(msg)
 }
-
 
 // Local Variables:
 // tab-width: 4

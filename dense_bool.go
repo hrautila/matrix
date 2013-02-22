@@ -13,13 +13,13 @@ func (A *FloatMatrix) Equal(B *FloatMatrix) bool {
     if !A.SizeMatch(B.Size()) {
         return false
     }
-	for k := 0; k < A.NumElements(); k++ {
-		rka := realIndex(k, A.Rows(), A.LeadingIndex())
-		rkb := realIndex(k, B.Rows(), B.LeadingIndex())
-		if A.elements[rka] != B.elements[rkb] {
-			return false
-		}
-	}
+    for k := 0; k < A.NumElements(); k++ {
+        rka := realIndex(k, A.Rows(), A.LeadingIndex())
+        rkb := realIndex(k, B.Rows(), B.LeadingIndex())
+        if A.elements[rka] != B.elements[rkb] {
+            return false
+        }
+    }
     return true
 }
 
@@ -28,9 +28,9 @@ func (A *FloatMatrix) Less(B *FloatMatrix) bool {
     if !A.SizeMatch(B.Size()) {
         return false
     }
-	for k := 0; k < A.NumElements(); k++ {
-		rka := realIndex(k, A.Rows(), A.LeadingIndex())
-		rkb := realIndex(k, B.Rows(), B.LeadingIndex())
+    for k := 0; k < A.NumElements(); k++ {
+        rka := realIndex(k, A.Rows(), A.LeadingIndex())
+        rkb := realIndex(k, B.Rows(), B.LeadingIndex())
         if A.elements[rka] >= B.elements[rkb] {
             return false
         }
@@ -45,9 +45,9 @@ func (A *FloatMatrix) LessOrEqual(B *FloatMatrix) bool {
     if !A.SizeMatch(B.Size()) {
         return false
     }
-	for k := 0; k < A.NumElements(); k++ {
-		rka := realIndex(k, A.Rows(), A.LeadingIndex())
-		rkb := realIndex(k, B.Rows(), B.LeadingIndex())
+    for k := 0; k < A.NumElements(); k++ {
+        rka := realIndex(k, A.Rows(), A.LeadingIndex())
+        rkb := realIndex(k, B.Rows(), B.LeadingIndex())
         if A.elements[rka] > B.elements[rkb] {
             return false
         }
@@ -61,9 +61,9 @@ func (A *FloatMatrix) Greater(B *FloatMatrix) bool {
     if !A.SizeMatch(B.Size()) {
         return false
     }
-	for k := 0; k < A.NumElements(); k++ {
-		rka := realIndex(k, A.Rows(), A.LeadingIndex())
-		rkb := realIndex(k, B.Rows(), B.LeadingIndex())
+    for k := 0; k < A.NumElements(); k++ {
+        rka := realIndex(k, A.Rows(), A.LeadingIndex())
+        rkb := realIndex(k, B.Rows(), B.LeadingIndex())
         if A.elements[rka] <= B.elements[rkb] {
             return false
         }
@@ -77,9 +77,9 @@ func (A *FloatMatrix) GreaterOrEqual(B *FloatMatrix) bool {
     if !A.SizeMatch(B.Size()) {
         return false
     }
-	for k := 0; k < A.NumElements(); k++ {
-		rka := realIndex(k, A.Rows(), A.LeadingIndex())
-		rkb := realIndex(k, B.Rows(), B.LeadingIndex())
+    for k := 0; k < A.NumElements(); k++ {
+        rka := realIndex(k, A.Rows(), A.LeadingIndex())
+        rkb := realIndex(k, B.Rows(), B.LeadingIndex())
         if A.elements[rka] < B.elements[rkb] {
             return false
         }
@@ -102,19 +102,19 @@ func (A *FloatMatrix) AllClose(B *FloatMatrix, tolerances ...float64) bool {
     if !A.SizeMatch(B.Size()) {
         return false
     }
-	rtol := RTOL
-	atol := ATOL
-	if len(tolerances) == 1 {
-		atol = tolerances[0]
-	} else if len(tolerances) > 1 {
-		atol = tolerances[0]
-		rtol = tolerances[1]
-	}
-	for k := 0; k < A.NumElements(); k++ {
-		rka := realIndex(k, A.Rows(), A.LeadingIndex())
-		rkb := realIndex(k, B.Rows(), B.LeadingIndex())
-		df := math.Abs(A.elements[rka]-B.elements[rkb])
-        if df > atol + rtol*math.Abs(B.elements[rkb]) {
+    rtol := RTOL
+    atol := ATOL
+    if len(tolerances) == 1 {
+        atol = tolerances[0]
+    } else if len(tolerances) > 1 {
+        atol = tolerances[0]
+        rtol = tolerances[1]
+    }
+    for k := 0; k < A.NumElements(); k++ {
+        rka := realIndex(k, A.Rows(), A.LeadingIndex())
+        rkb := realIndex(k, B.Rows(), B.LeadingIndex())
+        df := math.Abs(A.elements[rka] - B.elements[rkb])
+        if df > atol+rtol*math.Abs(B.elements[rkb]) {
             return false
         }
     }

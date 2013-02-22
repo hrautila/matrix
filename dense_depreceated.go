@@ -7,82 +7,82 @@
 package matrix
 
 import (
-	"fmt"
-	"errors"
+    "errors"
+    "fmt"
 )
 
 // Function that are depreceated and will be removed for good.
 
- // Get values for indexed elements. **DEPRECEATED**
- func (A *FloatMatrix) GetIndexesFromArray(indexes []int) []float64 {
-	 return A.GetIndexes(indexes...)
- }
+// Get values for indexed elements. **DEPRECEATED**
+func (A *FloatMatrix) GetIndexesFromArray(indexes []int) []float64 {
+    return A.GetIndexes(indexes...)
+}
 
- // Get copy of i'th row. Row elements are copied to vals array. 
- // Returns the array. If vals array is too small new slice is allocated and 
- // returned with row elements. **DEPRECEATED**
- func (A *FloatMatrix) GetRowArray(i int, vals []float64) []float64 {
-	 if vals == nil || cap(vals) < A.Cols() {
-		 vals = make([]float64, A.Cols())
-	 }
-	 step := A.LeadingIndex()
-	 if i < 0 {
-		 i += A.Rows()
-	 }
-	 for j := 0; j < A.Cols(); j++ {
-		 vals[j] = A.elements[j*step+i]
-	 }
-	 return vals
- }
+// Get copy of i'th row. Row elements are copied to vals array. 
+// Returns the array. If vals array is too small new slice is allocated and 
+// returned with row elements. **DEPRECEATED**
+func (A *FloatMatrix) GetRowArray(i int, vals []float64) []float64 {
+    if vals == nil || cap(vals) < A.Cols() {
+        vals = make([]float64, A.Cols())
+    }
+    step := A.LeadingIndex()
+    if i < 0 {
+        i += A.Rows()
+    }
+    for j := 0; j < A.Cols(); j++ {
+        vals[j] = A.elements[j*step+i]
+    }
+    return vals
+}
 
- // Get copy of i'th row. Return parameter matrix. If vec is too small 
- // reallocate new vector and return it. **DEPRECEATED**
- // Use SubMatrix function instead.
- func (A *FloatMatrix) GetRow(i int, vec *FloatMatrix) *FloatMatrix {
-	 if vec == nil || vec.NumElements() < A.Cols() {
-		 vec = FloatZeros(1, A.Cols())
-	 }
-	 step := A.LeadingIndex()
-	 ar := vec.FloatArray()
-	 if i < 0 {
-		 i += A.Rows()
-	 }
-	 for j := 0; j < A.Cols(); j++ {
-		 ar[j] = A.elements[j*step+i]
-	 }
-	 return vec
- }
+// Get copy of i'th row. Return parameter matrix. If vec is too small 
+// reallocate new vector and return it. **DEPRECEATED**
+// Use SubMatrix function instead.
+func (A *FloatMatrix) GetRow(i int, vec *FloatMatrix) *FloatMatrix {
+    if vec == nil || vec.NumElements() < A.Cols() {
+        vec = FloatZeros(1, A.Cols())
+    }
+    step := A.LeadingIndex()
+    ar := vec.FloatArray()
+    if i < 0 {
+        i += A.Rows()
+    }
+    for j := 0; j < A.Cols(); j++ {
+        ar[j] = A.elements[j*step+i]
+    }
+    return vec
+}
 
- // Get copy of i'th column. See GetRow. **DEPRECEATED**
- // Use SubMatrix function instead.
- func (A *FloatMatrix) GetColumn(i int, vec *FloatMatrix) *FloatMatrix {
-	 if vec == nil || vec.NumElements() < A.Rows() {
-		 vec = FloatZeros(A.Rows(), 1)
-	 }
-	 step := A.LeadingIndex()
-	 ar := vec.FloatArray()
-	 if i < 0 {
-		 i += A.Cols()
-	 }
-	 for j := 0; j < A.Rows(); j++ {
-		 ar[j] = A.elements[i*step+j]
-	 }
-	 return vec
- }
+// Get copy of i'th column. See GetRow. **DEPRECEATED**
+// Use SubMatrix function instead.
+func (A *FloatMatrix) GetColumn(i int, vec *FloatMatrix) *FloatMatrix {
+    if vec == nil || vec.NumElements() < A.Rows() {
+        vec = FloatZeros(A.Rows(), 1)
+    }
+    step := A.LeadingIndex()
+    ar := vec.FloatArray()
+    if i < 0 {
+        i += A.Cols()
+    }
+    for j := 0; j < A.Rows(); j++ {
+        ar[j] = A.elements[i*step+j]
+    }
+    return vec
+}
 
- // Get copy of i'th column. See GetRow. **DEPRECEATED**
- func (A *FloatMatrix) GetColumnArray(i int, vec []float64) []float64 {
-	 if cap(vec) < A.Rows() {
-		 vec = make([]float64, A.Rows())
-	 }
-	 step := A.LeadingIndex()
-	 if i < 0 {
-		 i += A.Cols()
-	 }
-	 for j := 0; j < A.Rows(); j++ {
-		 vec[j] = A.elements[i*step+j]
-	 }
-	 return vec
+// Get copy of i'th column. See GetRow. **DEPRECEATED**
+func (A *FloatMatrix) GetColumnArray(i int, vec []float64) []float64 {
+    if cap(vec) < A.Rows() {
+        vec = make([]float64, A.Rows())
+    }
+    step := A.LeadingIndex()
+    if i < 0 {
+        i += A.Cols()
+    }
+    for j := 0; j < A.Rows(); j++ {
+        vec[j] = A.elements[i*step+j]
+    }
+    return vec
 }
 
 // Set values of i'th row. **DEPRECEATED**
@@ -195,7 +195,6 @@ func (A *FloatMatrix) SetAtColumn(i int, rows []int, vals *FloatMatrix) {
     }
 }
 
-
 // Set values for sub-matrix starting at (row, col). If row+mat.Rows() greater than
 // A.Rows() or col+mat.Cols() greater than A.Cols() matrix A is not changed.
 // **DEPRECEATED**
@@ -250,25 +249,24 @@ func (A *FloatMatrix) GetSubMatrix(row, col int, sizes ...int) (m *FloatMatrix) 
 // Returns pointer to self. **DEPRECEATED**
 func (A *FloatMatrix) ApplyToIndexes(C *FloatMatrix, indexes []int, fn func(float64) float64) *FloatMatrix {
     if C != nil && !A.SizeMatch(C.Size()) {
-		return nil
+        return nil
     }
     B := C
     if C == nil {
         B = A
     }
     if len(indexes) > 0 {
-		nrows := A.Rows()
-		step := A.LeadingIndex()
-		N := A.NumElements()
+        nrows := A.Rows()
+        step := A.LeadingIndex()
+        N := A.NumElements()
         for _, k := range indexes {
-			k = (k + N) % N
-			rk := realIndex(k, nrows, step)
+            k = (k + N) % N
+            rk := realIndex(k, nrows, step)
             A.elements[rk] = fn(B.elements[rk])
         }
     }
     return A
 }
-
 
 // Local Variables:
 // tab-width: 4

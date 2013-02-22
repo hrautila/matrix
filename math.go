@@ -7,7 +7,7 @@
 package matrix
 
 import (
-	"github.com/hrautila/matrix/calgo"
+    "github.com/hrautila/matrix/calgo"
     "math"
 )
 
@@ -117,12 +117,12 @@ func Times(A, B *FloatMatrix) *FloatMatrix {
     }
     M := A.Rows()
     N := B.Cols()
-	P := B.Rows()
+    P := B.Rows()
     C := FloatZeros(M, N)
-	ldA := A.LeadingIndex()
-	ldB := B.LeadingIndex()
-	ldC := C.LeadingIndex()
-	calgo.Mult(C.FloatArray(), A.FloatArray(), B.FloatArray(), 1.0, ldC, ldA, ldB, M, N, P)
+    ldA := A.LeadingIndex()
+    ldB := B.LeadingIndex()
+    ldC := C.LeadingIndex()
+    calgo.Mult(C.FloatArray(), A.FloatArray(), B.FloatArray(), 1.0, ldC, ldA, ldB, M, N, P)
     return C
 }
 
@@ -153,7 +153,7 @@ func ApplyConst(A *FloatMatrix, x float64, fn func(float64, float64) float64, in
 // Makes a copy C of A and applies function fn to elements of the new copy C pointed
 // by the contexts of indexes array. New value of element in C is fn(A[indexes[i]], values[i]).
 // Returns new matrix.
-func ApplyConstValues(A *FloatMatrix, values []float64, fn func(float64, float64) float64, indexes... int) *FloatMatrix {
+func ApplyConstValues(A *FloatMatrix, values []float64, fn func(float64, float64) float64, indexes ...int) *FloatMatrix {
     if A == nil {
         return A
     }

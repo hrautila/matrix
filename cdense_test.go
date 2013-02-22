@@ -11,7 +11,6 @@ import (
     "testing"
 )
 
-
 func TestA(t *testing.T) {
     t.Logf("Test complex matrix printing.\n")
     A := ComplexZeros(2, 2)

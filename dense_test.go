@@ -90,40 +90,39 @@ func TestMath2(t *testing.T) {
 }
 
 func TestTimes(t *testing.T) {
-	A := FloatWithValue(4, 4, 1.0)
-	x := FloatWithValue(4, 1, 2.0)
-	t.Logf("A*x=\n%v\n", A.Times(x))
-	B := FloatWithValue(4, 4, 1.0)
-	t.Logf("A*B=\n%v\n", A.Times(B))
+    A := FloatWithValue(4, 4, 1.0)
+    x := FloatWithValue(4, 1, 2.0)
+    t.Logf("A*x=\n%v\n", A.Times(x))
+    B := FloatWithValue(4, 4, 1.0)
+    t.Logf("A*B=\n%v\n", A.Times(B))
 }
 
 func TestBigVector(t *testing.T) {
-	A := FloatDiagonal(20000, 1.0)
-	X := FloatWithValue(20000, 1, 2.0)
-	t.Logf("A*x=%d elements\n", Times(A, X).NumElements())
+    A := FloatDiagonal(20000, 1.0)
+    X := FloatWithValue(20000, 1, 2.0)
+    t.Logf("A*x=%d elements\n", Times(A, X).NumElements())
 }
 
 func TestTimesBig(t *testing.T) {
-	A := FloatDiagonal(800, 1.0)
-	B := FloatWithValue(800, 800, 2.0)
-	C := Times(A, B)
-	t.Logf("A*B = %d elements\n", C.NumElements())
+    A := FloatDiagonal(800, 1.0)
+    B := FloatWithValue(800, 800, 2.0)
+    C := Times(A, B)
+    t.Logf("A*B = %d elements\n", C.NumElements())
 }
 
 func TestTimesBig2(t *testing.T) {
-	A := FloatWithValue(6000, 10, 1.0)
-	B := FloatWithValue(10, 6000, 1.0)
-	C := Times(A, B)
-	t.Logf("A*B = %d elements\n", C.NumElements())
+    A := FloatWithValue(6000, 10, 1.0)
+    B := FloatWithValue(10, 6000, 1.0)
+    C := Times(A, B)
+    t.Logf("A*B = %d elements\n", C.NumElements())
 }
 
 func TestTimesBig3(t *testing.T) {
-	A := FloatWithValue(6000, 10, 1.0)
-	B := FloatWithValue(10, 6000, 1.0)
-	C := Times(B, A)
-	t.Logf("B*A = %d elements\n", C.NumElements())
+    A := FloatWithValue(6000, 10, 1.0)
+    B := FloatWithValue(10, 6000, 1.0)
+    C := Times(B, A)
+    t.Logf("B*A = %d elements\n", C.NumElements())
 }
-
 
 func TestFuncs(t *testing.T) {
     t.Logf("Test matrix element wise math.\n")
@@ -215,42 +214,43 @@ func TestSubMatrix(t *testing.T) {
         []float64{7, 8, 9}}
 
     A := FloatMatrixFromTable(data)
-	b := A.SubMatrix(1, 1)
-	t.Logf("A=\n%v\n", A)
-	t.Logf("b.NumElements: %d, b=\n%v\n", b.NumElements(), b)
-	r0 := A.SubMatrix(0, 0, 1, A.Cols())
-	c0 := A.SubMatrix(0, 0, A.Rows(), 1)
-	t.Logf("r0=\n%v\n", r0)
-	t.Logf("c0=\n%v\n", c0)
-	b.Scale(2.0)
-	t.Logf("2*b=\n%v\n", b)
-	r0.Add(5.0)
-	c0.Add(3.0, 1, 2)
-	t.Logf("r0+5=\n%v\n", r0)
-	t.Logf("c0[1,2]+3.0=\n%v\n", c0)
+    b := A.SubMatrix(1, 1)
+    t.Logf("A=\n%v\n", A)
+    t.Logf("b.NumElements: %d, b=\n%v\n", b.NumElements(), b)
+    r0 := A.SubMatrix(0, 0, 1, A.Cols())
+    c0 := A.SubMatrix(0, 0, A.Rows(), 1)
+    t.Logf("r0=\n%v\n", r0)
+    t.Logf("c0=\n%v\n", c0)
+    b.Scale(2.0)
+    t.Logf("2*b=\n%v\n", b)
+    r0.Add(5.0)
+    c0.Add(3.0, 1, 2)
+    t.Logf("r0+5=\n%v\n", r0)
+    t.Logf("c0[1,2]+3.0=\n%v\n", c0)
 
-	t.Logf("A=\n%v\n", A)
-	b.SubMatrixOf(A, 0, 0, 2, 2)
-	t.Logf("b.SubmatrixOf(A, 0, 0, 2, 2)\n%v\n", b)
-	c := b.Copy()
-	t.Logf("c = b.Copy()\n%v\n", c)
-	c.Exp()
-	t.Logf("c.Exp()\n%v\n", c)
-	b.Set(c)
-	t.Logf("b.Set(c)\n%v\n", b)
-	t.Logf("A=\n%v\n", A)
-	diag := A.SubMatrix(0, 0, 1, A.Cols(), A.LeadingIndex()+1)
-	t.Logf("diag= %d elements\n%v\n", diag.NumElements(), diag)
-	diag.SetIndexesFromArray([]float64{1.0, 2.0, 3.0}, 0, 1, 2)
-	t.Logf("diag=\n%v\n", diag)
-	t.Logf("A=\n%v\n", A)
-	foo := A.SubMatrix(0, 0, A.Rows()-1, 2, A.LeadingIndex()+1)
-	t.Logf("foo=\n%v\n", foo)
-	faa := A.SubMatrix(0, 1, A.Rows()-1, 2, A.LeadingIndex()+1)
-	t.Logf("faa=\n%v\n", faa)
-	d2 := A.Diag()
-	t.Logf("A.Diag()=\n%v\n", d2)
+    t.Logf("A=\n%v\n", A)
+    b.SubMatrixOf(A, 0, 0, 2, 2)
+    t.Logf("b.SubmatrixOf(A, 0, 0, 2, 2)\n%v\n", b)
+    c := b.Copy()
+    t.Logf("c = b.Copy()\n%v\n", c)
+    c.Exp()
+    t.Logf("c.Exp()\n%v\n", c)
+    b.Set(c)
+    t.Logf("b.Set(c)\n%v\n", b)
+    t.Logf("A=\n%v\n", A)
+    diag := A.SubMatrix(0, 0, 1, A.Cols(), A.LeadingIndex()+1)
+    t.Logf("diag= %d elements\n%v\n", diag.NumElements(), diag)
+    diag.SetIndexesFromArray([]float64{1.0, 2.0, 3.0}, 0, 1, 2)
+    t.Logf("diag=\n%v\n", diag)
+    t.Logf("A=\n%v\n", A)
+    foo := A.SubMatrix(0, 0, A.Rows()-1, 2, A.LeadingIndex()+1)
+    t.Logf("foo=\n%v\n", foo)
+    faa := A.SubMatrix(0, 1, A.Rows()-1, 2, A.LeadingIndex()+1)
+    t.Logf("faa=\n%v\n", faa)
+    d2 := A.Diag()
+    t.Logf("A.Diag()=\n%v\n", d2)
 }
+
 // Local Variables:
 // tab-width: 4
 // End:
