@@ -440,6 +440,21 @@ func (A *ComplexMatrix) MakeCopy() Matrix {
     return A.Copy()
 }
 
+// Copy A to B, A and B number of elements need not match.
+// Copies min(A.NumElements(), B.NumElements()) from start of A to start of B.
+func (A *ComplexMatrix) CopyTo(B *ComplexMatrix) error {
+    N := A.NumElements()
+	if N > B.NumElements() {
+		N = B.NumElements()
+	}
+    for k := 0; k < N; k++ {
+		rka := realIndex(k, A.Rows(), A.LeadingIndex())
+		rkb := realIndex(k, B.Rows(), B.LeadingIndex())
+        B.elements[rkb] = A.elements[rka]
+    }
+	return nil
+}
+
 // Copy and transpose matrix. Returns new matrix.
 func (A *ComplexMatrix) Transpose() *ComplexMatrix {
     rows := A.Rows()
