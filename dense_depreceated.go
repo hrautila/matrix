@@ -197,7 +197,7 @@ func (A *FloatMatrix) SetAtColumn(i int, rows []int, vals *FloatMatrix) {
 
 // Set values for sub-matrix starting at (row, col). If row+mat.Rows() greater than
 // A.Rows() or col+mat.Cols() greater than A.Cols() matrix A is not changed.
-// **DEPRECEATED**
+// **DEPRECEATED** (Use B.SubMatrixOf(A, row, col).Set(C))
 func (A *FloatMatrix) SetSubMatrix(row, col int, mat *FloatMatrix) error {
     r, c := mat.Size()
     if r+row > A.Rows() || c+col > A.Cols() {

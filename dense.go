@@ -21,6 +21,40 @@ type FloatMatrix struct {
     elements []float64
 }
 
+// Interface for producing float numbers
+type FloatGenerator interface {
+	Next() float64
+}
+
+// Produce constant value
+type ConstFloat struct {
+	Value float64
+}
+
+func (g *ConstFloat) Next() float64 {
+	return g.Value
+}
+
+// Produce uniformly distributed value
+type UniformFloat struct {
+	Low  float64
+	High float64
+}
+
+func (g *UniformFloat) Next() float64 {
+	return g.Low + (g.High - g.Low) * rand.Float64()
+}
+
+// Produce normally distributed value
+type NormalFloat struct {
+	Mean float64
+	StdDev float64
+}
+
+func (g *NormalFloat) Next() float64 {
+	return g.Mean + g.StdDev * rand.NormFloat64()
+}
+
 // Create a column-major matrix from a flat array of elements.
 // Assumes values are in column-major order.
 func FloatNew(rows, cols int, elements []float64, order ...DataOrder) *FloatMatrix {
@@ -64,6 +98,7 @@ func FloatUniform(rows, cols int) *FloatMatrix {
 }
 
 // Create random matrix with elements from normal distribution (mean=0.0, stddev=1.0)
+// *DEPRECEATED*
 func FloatNormal(rows, cols int) *FloatMatrix {
     A := FloatZeros(rows, cols)
     for i, _ := range A.elements {
@@ -73,6 +108,7 @@ func FloatNormal(rows, cols int) *FloatMatrix {
 }
 
 // Create symmetric n by n random  matrix with elements from [0.0, 1.0).
+// *DEPRECEATED*
 func FloatUniformSymmetric(n int, uplo ...Tridiagonal) *FloatMatrix {
     var symm Tridiagonal = Symmetric
     if len(uplo) > 0 {
@@ -85,7 +121,10 @@ func FloatUniformSymmetric(n int, uplo ...Tridiagonal) *FloatMatrix {
             if symm == Symmetric || symm == Upper {
                 A.SetAt(i, j, val)
             }
-            if i != j && (symm == Symmetric || symm == Lower) {
+			if symm == Lower {
+                A.SetAt(j, i, val)
+			}
+            if symm == Symmetric && i != j {
                 A.SetAt(j, i, val)
             }
         }
@@ -94,6 +133,7 @@ func FloatUniformSymmetric(n int, uplo ...Tridiagonal) *FloatMatrix {
 }
 
 // Create symmetric n by n random  matrix with elements from normal distribution.
+// *DEPRECEATED*
 func FloatNormalSymmetric(n int, uplo ...Tridiagonal) *FloatMatrix {
     var symm Tridiagonal = Symmetric
     if len(uplo) > 0 {
@@ -106,7 +146,10 @@ func FloatNormalSymmetric(n int, uplo ...Tridiagonal) *FloatMatrix {
             if symm == Symmetric || symm == Upper {
                 A.SetAt(i, j, val)
             }
-            if i != j && (symm == Symmetric || symm == Lower) {
+			if symm == Lower {
+                A.SetAt(j, i, val)
+			}
+            if symm == Symmetric && i != j {
                 A.SetAt(j, i, val)
             }
         }
@@ -195,6 +238,7 @@ func FloatZeros(rows, cols int) *FloatMatrix {
 }
 
 // Create new matrix initialized to one.
+// *DEPRECEATED*
 func FloatOnes(rows, cols int) *FloatMatrix {
     return FloatWithValue(rows, cols, 1.0)
 }
@@ -209,6 +253,7 @@ func FloatWithValue(rows, cols int, value float64) *FloatMatrix {
 }
 
 // Create new identity matrix. Row count must equal column count.
+// *DEPRECEATED*
 func FloatIdentity(rows int) *FloatMatrix {
     return FloatDiagonal(rows, 1.0)
 }
@@ -217,6 +262,7 @@ func FloatIdentity(rows int) *FloatMatrix {
 // then all entries on diagonal is set to values[0]. If len(values) is
 // greater than one then diagonals are set from the list values starting
 // from (0,0) until the diagonal is full or values are exhausted.
+// *DEPRECEATED* 
 func FloatDiagonal(rows int, values ...float64) *FloatMatrix {
     A := FloatZeros(rows, rows)
     step := A.LeadingIndex()
@@ -232,15 +278,15 @@ func FloatDiagonal(rows int, values ...float64) *FloatMatrix {
     return A
 }
 
-// Make a submatrix of A starting from position row, col. Returns a new matrix.
-// The size argument can be either: nrows, ncols or nrows, ncols, nstep.
-// The first form is used to create row or column vectors or normal submatrices.
-// Three argument form is used to create diagonal vectors by setting nrows to one,
-// ncols to number of columns and nstep to A.LeadingIndex()+1. Other combinations
-// of parameters in three argument form may create unexpected access patterns to
-// underlying matrix. 
-func (A *FloatMatrix) SubMatrix(row, col int, size ...int) *FloatMatrix {
-    M := new(FloatMatrix)
+// Make B a submatrix of A with top left corner at (row, col).
+//
+// If no size argument is given then size of (A.Rows()-row, A.Cols()-col) is assumed.
+// The variadic size argument can be either (nrows, ncols) or (nrows, ncols, nstep). 
+// The first form sets B size to (nrows, ncols). The second form is used to create
+// diagonal vectors over A by setting nrows to one, ncols properly and nstep to
+// A.LeadingIndex()+1. Other combinations of parameters in three argument form may
+// create unexpected access patterns to underlying matrix.
+func (A *FloatMatrix) SubMatrix(B *FloatMatrix, row, col int, size ...int) *FloatMatrix {
     nrows := A.Rows() - row
     ncols := A.Cols() - col
     nstep := A.LeadingIndex()
@@ -253,15 +299,31 @@ func (A *FloatMatrix) SubMatrix(row, col int, size ...int) *FloatMatrix {
         ncols = size[1]
         nstep = size[2]
     }
-    // can we support mapping a matrix on a vector ??
-    M.elements = A.elements[col*A.LeadingIndex()+row:]
-    M.rows = nrows
-    M.cols = ncols
-    M.step = nstep
-    return M
+	offset := col*A.LeadingIndex()+row
+	if offset < len(A.elements) {
+		B.elements = A.elements[offset:]
+	} else {
+		B.elements = nil
+	}
+    B.rows = nrows
+    B.cols = ncols
+    B.step = nstep
+	return B
 }
 
-// Set A to be submatrix of B. Changes contents of A. Returns matrix A. 
+// Make B diagonal of matrix A as submatrix vector.
+func (A *FloatMatrix) Diag(B *FloatMatrix) *FloatMatrix {
+    return A.SubMatrix(B, 0, 0, 1, A.Rows(), A.LeadingIndex()+1)
+}
+
+
+// Set A to be submatrix of B starting from position row, col. Returns A.
+// The size argument can be either: nrows, ncols or nrows, ncols, nstep.
+// The first form is used to create row or column vectors or normal submatrices.
+// Three argument form is used to create diagonal vectors by setting nrows to one,
+// ncols to number of columns and nstep to A.LeadingIndex()+1. Other combinations
+// of parameters in three argument form may create unexpected access patterns to
+// underlying matrix. 
 func (A *FloatMatrix) SubMatrixOf(B *FloatMatrix, row, col int, size ...int) *FloatMatrix {
     nrows := B.Rows() - row
     ncols := B.Cols() - col
@@ -275,22 +337,27 @@ func (A *FloatMatrix) SubMatrixOf(B *FloatMatrix, row, col int, size ...int) *Fl
         ncols = size[1]
         nstep = size[2]
     }
-    A.elements = B.elements[col*B.LeadingIndex()+row:]
+	offset := col*B.LeadingIndex()+row
+	if offset < len(B.elements) {
+		A.elements = B.elements[offset:]
+	} else {
+		A.elements = nil
+	}
     A.rows = nrows
     A.cols = ncols
     A.step = nstep
     return A
 }
 
-// Return diagonal of matrix as submatrix vector.
-func (A *FloatMatrix) Diag() *FloatMatrix {
-    if A.Rows() < A.Cols() {
-        return A.SubMatrix(0, 0, 1, A.Rows(), A.LeadingIndex()+1)
-    } else if A.Rows() > A.Cols() {
-        return A.SubMatrix(0, 0, 1, A.Cols(), A.LeadingIndex()+1)
+// Make A diagonal of matrix B as submatrix vector.
+func (A *FloatMatrix) DiagOf(B *FloatMatrix) *FloatMatrix {
+    if B.Rows() < B.Cols() {
+        return A.SubMatrixOf(B, 0, 0, 1, B.Rows(), B.LeadingIndex()+1)
+    } else if B.Rows() > B.Cols() {
+        return A.SubMatrixOf(B, 0, 0, 1, B.Cols(), B.LeadingIndex()+1)
     }
-    // here A.Rows() == A.Cols(): standard square matrix
-    return A.SubMatrix(0, 0, 1, A.Rows(), A.LeadingIndex()+1)
+    // here B.Rows() == B.Cols(): standard square matrix
+    return A.SubMatrixOf(B, 0, 0, 1, B.Rows(), B.LeadingIndex()+1)
 }
 
 // Return the flat column-major element array.
@@ -361,8 +428,11 @@ func (A *FloatMatrix) GetIndexes(indexes ...int) []float64 {
     return vals
 }
 
+// Get element value from column-major index position.
 func (A *FloatMatrix) GetIndex(i int) float64 {
-    return A.GetIndexes(i)[0]
+    i = (i + A.NumElements()) % A.NumElements()
+    rk := realIndex(i, A.Rows(), A.LeadingIndex())
+    return A.elements[rk]
 }
 
 // Copy A to B, A and B number of elements need not match.
@@ -451,6 +521,48 @@ func (A *FloatMatrix) SetIndexesFromArray(values []float64, indexes ...int) {
     }
 }
 
+func (A *FloatMatrix) SetFrom(g FloatGenerator, indexes ...int) *FloatMatrix {
+	if len(indexes) == 0 {
+		for k := 0; k < A.NumElements(); k++ {
+			rk := realIndex(k, A.Rows(), A.LeadingIndex())
+			A.elements[rk] = g.Next()
+		}
+	} else {
+		for _, k := range indexes {
+			rk := realIndex(k, A.Rows(), A.LeadingIndex())
+			A.elements[rk] = g.Next()
+		}
+	}
+	return A
+}
+
+func (A *FloatMatrix) SetFromTrm(g FloatGenerator, tridiagonal ...Tridiagonal) *FloatMatrix {
+	which := Symmetric
+	if len(tridiagonal) > 0 {
+		which = tridiagonal[0]
+	}
+	for i := 0; i < A.Rows(); i++ {
+		A.SetAt(i, i, g.Next())
+		switch (which) {
+		case Lower:
+			for j := 0; j < i; j++ {
+				A.SetAt(i, j, g.Next())
+			}
+		case Upper:
+			for j := i+1; j < A.Cols(); j++ {
+				A.SetAt(i, j, g.Next())
+			}
+		default: // Symmetric
+			for j := i+1; j < A.Cols(); j++ {
+				v := g.Next()
+				A.SetAt(i, j, v)
+				A.SetAt(j, i, v)
+			}
+		}
+	}
+	return A
+}
+
 // Create a copy of matrix.
 func (A *FloatMatrix) Copy() (B *FloatMatrix) {
     B = new(FloatMatrix)
@@ -495,6 +607,7 @@ func makeFloatMatrix(rows, cols int, elements []float64) *FloatMatrix {
     A.elements = elements
     return A
 }
+
 
 // Local Variables:
 // tab-width: 4
